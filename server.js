@@ -1,10 +1,10 @@
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
-const { gunzipSync } = require("node:zlib");
 
 const PORT = Number(process.env.PORT) || 3000;
 const ROOT = __dirname;
+const nflFantasyData = require("./data/nfl-perry-party.json");
 const TRANSFERMARKT = "https://www.transfermarkt.us";
 const TM_API = "https://tmapi.transfermarkt.technology";
 const cache = new Map();
@@ -13,8 +13,6 @@ const sportsCache = new Map();
 const CACHE_TTL = 15 * 60 * 1000;
 const WIKIPEDIA_CACHE_TTL = 24 * 60 * 60 * 1000;
 const SPORTS_CACHE_TTL = 2 * 60 * 1000;
-const NFL_FANTASY_CACHE_TTL = 12 * 60 * 60 * 1000;
-let nflFantasyPromise = null;
 
 function decodeHtml(value = "") {
   return value
@@ -76,222 +74,8 @@ function validDate(value) {
   return /^\d{8}$/.test(value) && Number.isFinite(Date.parse(`${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}T00:00:00Z`));
 }
 
-function parseCsv(value) {
-  const rows = [];
-  let row = [], field = "", quoted = false;
-  for (let index = 0; index < value.length; index += 1) {
-    const character = value[index];
-    if (quoted) {
-      if (character === '"' && value[index + 1] === '"') {
-        field += '"';
-        index += 1;
-      } else if (character === '"') {
-        quoted = false;
-      } else {
-        field += character;
-      }
-    } else if (character === '"') {
-      quoted = true;
-    } else if (character === ",") {
-      row.push(field);
-      field = "";
-    } else if (character === "\n") {
-      row.push(field.replace(/\r$/, ""));
-      if (row.some(cell => cell !== "")) rows.push(row);
-      row = [];
-      field = "";
-    } else {
-      field += character;
-    }
-  }
-  if (field || row.length) {
-    row.push(field.replace(/\r$/, ""));
-    if (row.some(cell => cell !== "")) rows.push(row);
-  }
-  if (!rows.length) return [];
-  const headers = rows.shift();
-  return rows.map(cells => Object.fromEntries(headers.map((header, index) => [header, cells[index] || ""])));
-}
-
-async function fetchGzipCsv(url) {
-  const response = await fetch(url, {
-    headers: { "User-Agent": "FULLTIME/1.0 (nflverse historical fantasy data)", Accept: "application/octet-stream" },
-    signal: AbortSignal.timeout(30000)
-  });
-  if (!response.ok) throw new Error(`nflverse returned HTTP ${response.status}`);
-  return parseCsv(gunzipSync(Buffer.from(await response.arrayBuffer())).toString("utf8"));
-}
-
-async function mapConcurrent(items, limit, callback) {
-  const result = Array(items.length);
-  let cursor = 0;
-  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
-    while (cursor < items.length) {
-      const index = cursor++;
-      result[index] = await callback(items[index], index);
-    }
-  });
-  await Promise.all(workers);
-  return result;
-}
-
-const nflTeamNames = {
-  ARI: "Arizona Cardinals", ATL: "Atlanta Falcons", BAL: "Baltimore Ravens", BUF: "Buffalo Bills",
-  CAR: "Carolina Panthers", CHI: "Chicago Bears", CIN: "Cincinnati Bengals", CLE: "Cleveland Browns",
-  DAL: "Dallas Cowboys", DEN: "Denver Broncos", DET: "Detroit Lions", GB: "Green Bay Packers",
-  HOU: "Houston Texans", IND: "Indianapolis Colts", JAX: "Jacksonville Jaguars", JAC: "Jacksonville Jaguars",
-  KC: "Kansas City Chiefs", LAC: "Los Angeles Chargers", SD: "Los Angeles Chargers",
-  LAR: "Los Angeles Rams", LA: "Los Angeles Rams", STL: "Los Angeles Rams",
-  LV: "Las Vegas Raiders", OAK: "Las Vegas Raiders", MIA: "Miami Dolphins", MIN: "Minnesota Vikings",
-  NE: "New England Patriots", NO: "New Orleans Saints", NYG: "New York Giants", NYJ: "New York Jets",
-  PHI: "Philadelphia Eagles", PIT: "Pittsburgh Steelers", SEA: "Seattle Seahawks", SF: "San Francisco 49ers",
-  TB: "Tampa Bay Buccaneers", TEN: "Tennessee Titans", WAS: "Washington Commanders", WSH: "Washington Commanders"
-};
-const nflTeamAbbreviations = [...new Set(Object.keys(nflTeamNames).map(key =>
-  ({ LA: "LAR", STL: "LAR", SD: "LAC", OAK: "LV", JAC: "JAX", WSH: "WAS" })[key] || key
-))].filter(key => nflTeamNames[key]).sort();
-
-function numeric(row, key) {
-  const value = Number(row[key]);
-  return Number.isFinite(value) ? value : 0;
-}
-
-function aggregateSeasonPoints(records, keyParts, pointFor, getName, getPosition, getTeams) {
-  const seasons = new Map();
-  for (const record of records) {
-    if (record.season_type !== "REG") continue;
-    const playerId = record.player_id || `${getPosition(record)}:${getName(record)}`;
-    const season = String(record.season || "");
-    if (!playerId || !season) continue;
-    const key = [...keyParts(record), playerId, season].join("|");
-    const item = seasons.get(key) || {
-      playerId,
-      name: getName(record),
-      position: getPosition(record),
-      season: Number(season),
-      points: 0,
-      teams: new Set()
-    };
-    item.points += pointFor(record);
-    for (const team of getTeams(record)) if (team) item.teams.add(team);
-    seasons.set(key, item);
-  }
-  return [...seasons.values()];
-}
-
-function bestSeasons(seasonRows) {
-  const best = new Map();
-  for (const row of seasonRows) {
-    if (!row.name || !row.teams.size || !Number.isFinite(row.points)) continue;
-    const current = best.get(row.playerId);
-    if (!current || row.points > current.points) {
-      best.set(row.playerId, { ...row, teams: [...row.teams] });
-    } else if (current.season === row.season) {
-      current.teams = [...new Set([...current.teams, ...row.teams])];
-    }
-  }
-  return [...best.values()].map(player => ({
-    id: player.playerId,
-    name: player.name,
-    position: player.position,
-    season: player.season,
-    points: Math.round(player.points * 10) / 10,
-    teams: player.teams.map(team => ({"LA":"LAR","STL":"LAR","SD":"LAC","OAK":"LV","JAC":"JAX","WSH":"WAS"})[team] || team).filter(team => nflTeamNames[team])
-  })).filter(player => player.teams.length);
-}
-
-function defenseSeasonPoints(stats, games) {
-  const scores = new Map();
-  const gameById = new Map(games.filter(game => game.game_type === "REG").map(game => [game.game_id, game]));
-  for (const row of stats) {
-    if (row.season_type !== "REG") continue;
-    const game = gameById.get(row.game_id);
-    if (!game) continue;
-    const team = ({"LA":"LAR","STL":"LAR","SD":"LAC","OAK":"LV","JAC":"JAX","WSH":"WAS"})[row.team] || row.team;
-    const opponentScore = row.team === game.home_team ? Number(game.away_score) : Number(game.home_score);
-    if (!nflTeamNames[team] || !Number.isFinite(opponentScore)) continue;
-    const key = `${team}|${row.season}`;
-    const total = scores.get(key) || { team, season: Number(row.season), points: 0 };
-    const pointsAllowed = opponentScore === 0 ? 10 : opponentScore <= 6 ? 7 : opponentScore <= 13 ? 4 : opponentScore <= 20 ? 1 : opponentScore <= 27 ? 0 : opponentScore <= 34 ? -1 : -4;
-    total.points += numeric(row, "def_sacks") + 2 * numeric(row, "def_interceptions") +
-      2 * numeric(row, "fumble_recovery_opp") + 6 * numeric(row, "def_tds") +
-      2 * numeric(row, "def_safeties") + 2 * (numeric(row, "def_punt_blocks") + numeric(row, "def_pat_blocks") + numeric(row, "def_fg_blocks")) +
-      6 * numeric(row, "special_teams_tds") + pointsAllowed;
-    scores.set(key, total);
-  }
-  const best = new Map();
-  for (const row of scores.values()) {
-    const current = best.get(row.team);
-    if (!current || row.points > current.points) best.set(row.team, row);
-  }
-  return [...best.values()].map(team => ({
-    id: `dst:${team.team}`,
-    name: `${nflTeamNames[team.team]} D/ST`,
-    position: "D/ST",
-    season: team.season,
-    points: Math.round(team.points * 10) / 10,
-    teams: [team.team]
-  }));
-}
-
-async function loadNflFantasy() {
-  const now = Date.now();
-  if (nflFantasyPromise && nflFantasyPromise.expiresAt > now) return nflFantasyPromise.promise;
-  const promise = (async () => {
-    const years = Array.from({ length: 2024 - 1999 + 1 }, (_, index) => 1999 + index);
-    const [players, games, yearly] = await Promise.all([
-      fetchGzipCsv("https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats.csv.gz"),
-      fetchGzipCsv("https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv.gz"),
-      mapConcurrent(years, 8, async year => {
-        const [kicking, teamStats] = await Promise.all([
-          fetchGzipCsv(`https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_kicking${year === 2021 ? "_season" : ""}_${year}.csv.gz`),
-          fetchGzipCsv(`https://github.com/nflverse/nflverse-data/releases/download/stats_team/stats_team_week_${year}.csv.gz`)
-        ]);
-        return { year, kicking, teamStats };
-      })
-    ]);
-    const playerRows = aggregateSeasonPoints(
-      players.filter(row => ["QB", "RB", "HB", "FB", "WR", "TE"].includes(row.position) && row.season_type === "REG"),
-      () => [],
-      row => numeric(row, "fantasy_points"),
-      row => row.player_display_name || row.player_name,
-      row => ["HB", "FB"].includes(row.position) ? "RB" : row.position,
-      row => [row.recent_team]
-    );
-    const skillPlayers = bestSeasons(playerRows);
-    const kickerRows = [];
-    for (const { kicking } of yearly) {
-      for (const row of kicking) {
-        if (row.season_type !== "REG" || !row.player_id) continue;
-        const points = 3 * (numeric(row, "fg_made_0_19") + numeric(row, "fg_made_20_29") + numeric(row, "fg_made_30_39")) +
-          4 * numeric(row, "fg_made_40_49") + 5 * (numeric(row, "fg_made_50_59") + numeric(row, "fg_made_60_")) +
-          numeric(row, "pat_made");
-        kickerRows.push({ ...row, fantasy_points: String(points), position: "K", player_display_name: row.player_display_name || row.player_name });
-      }
-    }
-    const kickers = bestSeasons(aggregateSeasonPoints(
-      kickerRows,
-      () => [],
-      row => numeric(row, "fantasy_points"),
-      row => row.player_display_name || row.player_name,
-      () => "K",
-      row => [row.team]
-    ));
-    const defenses = defenseSeasonPoints(yearly.flatMap(item => item.teamStats), games);
-    return {
-      source: "nflverse weekly statistics",
-      seasons: { first: 1999, last: 2024 },
-      teams: nflTeamAbbreviations.map(abbreviation => ({ abbreviation, name: nflTeamNames[abbreviation] })),
-      players: [...skillPlayers, ...kickers, ...defenses]
-    };
-  })();
-  nflFantasyPromise = { promise, expiresAt: now + NFL_FANTASY_CACHE_TTL };
-  try {
-    return await promise;
-  } catch (error) {
-    if (nflFantasyPromise?.promise === promise) nflFantasyPromise = null;
-    throw error;
-  }
+function loadNflFantasy() {
+  return nflFantasyData;
 }
 
 async function nbaSlate(date) {
