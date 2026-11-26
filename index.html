@@ -21,6 +21,7 @@
     .backdrop{position:fixed;inset:0;background:#000b;z-index:5;display:none;align-items:center;justify-content:center;padding:18px}.backdrop.show{display:flex}.modal{width:min(760px,100%);max-height:90vh;overflow:auto;background:#181c17;border:1px solid #41493c;border-radius:14px;padding:23px;box-shadow:0 25px 90px #000b}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal h2{font:600 24px "Space Grotesk",sans-serif;margin:12px 0 5px}.modal-copy{font-size:12px;color:var(--muted);line-height:1.55}.modal-close{border:0;background:none;color:var(--muted);font-size:22px}.formation-row{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.formation{background:#22271f;border:1px solid var(--line);border-radius:7px;padding:9px 11px;font-size:11px}.formation.active{border-color:var(--lime);color:var(--lime)}.pitch{background:linear-gradient(180deg,#223022,#182319);border:1px solid #384937;border-radius:10px;padding:14px;margin:14px 0}.pitch-line{display:flex;justify-content:center;gap:8px;margin:8px 0}.slot{min-width:76px;max-width:110px;min-height:54px;padding:7px 8px;border:1px dashed #65755b;border-radius:7px;background:#182219;color:#dce7d3;font-size:9px;text-align:center}.slot.filled{border-style:solid;border-color:#78925b;background:#2b3a26}.slot small{display:block;color:#aab69d;font:8px "DM Mono",monospace;margin-bottom:3px}.pool-title{font:10px "DM Mono",monospace;color:var(--lime);letter-spacing:1px;margin:17px 0 9px}.pool{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.pick{min-height:44px;text-align:left;background:#22271f;border:1px solid #343a30;border-radius:7px;padding:9px;font-size:10px}.pick:hover:not(:disabled){border-color:var(--lime)}.pick:disabled{opacity:.35;cursor:not-allowed}.modal-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:13px}.progress{font:10px "DM Mono",monospace;color:var(--muted)}.primary{border:0;background:var(--lime);color:#161910;padding:10px 13px;border-radius:7px;font-size:11px;font-weight:800}.primary:disabled{opacity:.4;cursor:not-allowed}.award-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.award-form label{font:9px "DM Mono",monospace;color:var(--muted);letter-spacing:.7px}.award-form input,.award-form select{display:block;width:100%;margin-top:7px;padding:11px;border:1px solid var(--line);border-radius:7px;background:#22271f;color:var(--text)}.announcement{display:none;background:#242a20;border:1px solid #536341;border-radius:9px;padding:15px;margin-top:14px;color:var(--lime);font:700 17px "Space Grotesk",sans-serif}.announcement.show{display:block}.announcement small{display:block;color:var(--muted);font:10px "DM Mono",monospace;margin-top:8px}.draft-search{width:100%;margin:12px 0 7px;padding:11px 12px;border:1px solid var(--line);border-radius:7px;background:#22271f;color:var(--text);outline:0}.draft-search:focus{border-color:var(--lime)}.draft-note,.draft-status{font-size:10px;color:var(--muted);line-height:1.5;margin:6px 0}.draft-summary{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;background:#20251e;border:1px solid var(--line);border-radius:7px;font:10px "DM Mono",monospace}.draft-summary b{color:var(--lime)}.pick{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:3px 8px}.pick-info{display:contents}.pick-info b{grid-column:1;grid-row:1;min-width:0;overflow-wrap:anywhere}.pick-info small{grid-column:1/-1;grid-row:2;display:block;margin-top:3px;white-space:normal;overflow-wrap:anywhere;color:var(--muted)}.pick-price{grid-column:2;grid-row:1;color:var(--lime);font:9px "DM Mono",monospace;white-space:nowrap}.pick:disabled{opacity:.4}
     @media(max-width:650px){.wrap{width:calc(100% - 30px)}.topbar{gap:8px}.top-actions{gap:5px;flex-wrap:wrap;justify-content:flex-end}.draft-button{padding:8px 9px;font-size:9px}.index-count{display:none}.brand-note{display:none}main{padding-top:56px}.intro h1{letter-spacing:-2.5px}.intro>p{font-size:13px;line-height:1.6}.search{height:58px}.search input{font-size:14px}.sport-filters{justify-content:flex-start;margin:22px 0 26px}.home-panel{padding:18px}.home-panel-head{flex-direction:column}.home-bottom{align-items:flex-start;flex-direction:column}.facts{grid-template-columns:repeat(2,1fr)}.highlight-grid{grid-template-columns:1fr}.profile-top,.profile-body{padding:18px}.value-row{align-items:flex-start;flex-direction:column}.source-link{font-size:10px}.stats-grid{grid-template-columns:1fr}.stats-heading{align-items:flex-start;flex-direction:column}.pool{grid-template-columns:repeat(2,1fr)}.nba-pool{grid-template-columns:1fr}.slot{min-width:60px;font-size:8px}.pitch-line{gap:4px}.award-form{grid-template-columns:1fr}footer{flex-direction:column}}
     @media(max-width:650px){.portal-choices,.game-grid{grid-template-columns:1fr}.portal-choice{min-height:290px;padding:24px}.portal-choice-icon{margin-bottom:32px}.portal-nav button{padding:8px;font-size:9px}.screen-title{align-items:flex-start}.nfl-party-options{grid-template-columns:1fr}.nfl-slot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .nfl-format-note{margin:-5px 0 12px;color:#a9a1ae;font-size:10px;line-height:1.45}
   </style>
 </head>
 <body>
@@ -903,7 +904,7 @@
 
     const backdrop=document.getElementById("backdrop"),modal=document.getElementById("modal");
     let modalGeneration=0;
-    function closeModal(){modalGeneration++;backdrop.classList.remove("show")}
+    function closeModal(){modalGeneration++;backdrop.classList.remove("show","nfl-game-backdrop");modal.classList.remove("nfl-game-modal")}
     backdrop.addEventListener("click",event=>{if(event.target===backdrop)closeModal()});
     function formationSlots(formation){
       const [defenders,midfielders,forwards]=formation.split("-").map(Number);
@@ -955,14 +956,15 @@
       const session=++modalGeneration;
       const playerSlots=["QB","RB","RB","WR","WR","TE","FLEX"];
       const fullSlots=[...playerSlots,"D/ST","K"];
-      let data=null,mode="standard",lineup=[],currentTeam="",loading=true,error="";
-      backdrop.classList.add("show");
+      let data=null,mode="standard",lineup=[],currentTeam="",loading=true,error="",query="";
+      backdrop.classList.add("nfl-game-backdrop","show");
+      modal.classList.add("nfl-game-modal");
       function teamName(abbreviation){
         return data?.teams.find(team=>team.abbreviation===abbreviation)?.name||abbreviation;
       }
-      function randomTeam(){
-        const team=data.teams[Math.floor(Math.random()*data.teams.length)];
-        return team.abbreviation;
+      function randomTeam(exclude=""){
+        const teams=data.teams.filter(team=>team.abbreviation!==exclude);
+        return teams[Math.floor(Math.random()*teams.length)].abbreviation;
       }
       function slots(){
         return mode==="full"?fullSlots:playerSlots;
@@ -972,32 +974,57 @@
         return data.players.filter(player=>{
           const eligible=slot==="FLEX"?["RB","WR","TE"].includes(player.position):player.position===slot;
           return eligible&&player.teams.includes(currentTeam)&&!picked.has(player.id);
-        });
+        }).sort((left,right)=>right.points-left.points||left.name.localeCompare(right.name));
       }
       function draw(){
         const activeSlot=slots()[lineup.length]||"";
-        const options=data&&activeSlot?slotCandidates(activeSlot):[];
+        const allOptions=data&&activeSlot?slotCandidates(activeSlot):[];
+        const filteredOptions=allOptions.filter(player=>normalize(player.name).includes(normalize(query)));
+        const options=filteredOptions.slice(0,40);
         const chosenPoints=lineup.reduce((total,player)=>total+player.points,0);
-        modal.innerHTML=`<div class="modal-head"><span class="eyebrow">NFL · ALL-TIME STANDARD FANTASY DRAFT</span><button class="modal-close" aria-label="Close">×</button></div><h2 id="modal-title">NFL Perry Party</h2><p class="modal-copy">A new random NFL team spins after every pick. Choose one player from that team’s franchise history; only that player’s best regular-season fantasy year counts.</p><div class="nfl-party-settings"><strong>CHOOSE YOUR ROSTER</strong><div class="nfl-party-mode"><button data-mode="standard" class="${mode==="standard"?"active":""}">STANDARD · 7 PICKS</button><button data-mode="full" class="${mode==="full"?"active":""}">FULL · 9 PICKS WITH D/ST + K</button></div><p class="draft-note">Standard scoring is non-PPR. Historical nflverse records currently cover 1999–2024. Retired players are included. Each player appears once, at their single best season in the available data.</p></div><div class="nfl-party-team"><span class="nfl-party-spinner">🎲 TEAM SPIN · ${data?`${lineup.length+1} OF ${slots().length}`:"LOADING"}</span><div class="nfl-spin-team">${loading?"Loading historical fantasy seasons…":error?escapeHtml(error):teamName(currentTeam)}</div><p class="draft-note">${!loading&&!error&&activeSlot?`Pick a ${activeSlot==="FLEX"?"RB, WR, or TE":activeSlot} who played for this franchise in their best season.`:!loading&&!error?"All roster spots filled. Your lineup is complete!":""}</p></div><div class="nfl-slot-grid">${slots().map((slot,index)=>`<span class="nfl-slot-chip${index===lineup.length?" active":""}">${index+1}. ${slot==="FLEX"?"FLEX · RB/WR/TE":slot}</span>`).join("")}</div><div class="nfl-party-picks">${lineup.map((player,index)=>`<div class="nfl-party-pick-row"><span><b>${index+1}. ${player.slot}</b> · ${escapeHtml(player.name)}<small>${escapeHtml(teamName(player.pickTeam))} · ${player.season} best season</small></span><b>${player.points.toFixed(1)} pts</b></div>`).join("")||'<p class="draft-status">Your picks appear here. Every pick gets a different random team spin.</p>'}</div><div class="nfl-party-summary">TOTAL STANDARD POINTS <b>${chosenPoints.toFixed(1)}</b>${activeSlot?` · NEXT <b>${activeSlot}</b>`:" · COMPLETE"}</div>${activeSlot?`<div class="nfl-party-options">${options.map(player=>`<button class="nfl-player-option" data-nfl-player="${escapeHtml(player.id)}"><span><strong>${escapeHtml(player.name)}</strong><small>${player.season} best season · ${escapeHtml(player.position)}${player.teams.length>1?" · played for this team that season":""}</small></span><span class="nfl-player-points">${player.points.toFixed(1)} pts</span></button>`).join("")||`<div class="empty-result">No eligible ${activeSlot} season was found for ${escapeHtml(teamName(currentTeam))}. Spin another team to continue.</div>`}</div>`:""}<div class="modal-foot"><span class="progress">${lineup.length} / ${slots().length} PICKS</span>${activeSlot?`<button class="formation" id="reroll-team" ${loading||error?"disabled":""}>SPIN ANOTHER TEAM</button>`:`<button class="primary" id="reset-perry">PLAY AGAIN</button>`}</div><div class="game-hub-note">Fantasy points source: <a href="https://github.com/nflverse/nflverse-data" target="_blank" rel="noopener noreferrer">nflverse player, kicker, team, and schedule data ↗</a>. D/ST uses standard points allowed and defensive scoring; kicker points use made field goals by distance plus extra points.</div>`;
-        modal.querySelector(".modal-close").addEventListener("click",closeModal);
+        const roster=slots().map((slot,index)=>{
+          const player=lineup[index];
+          const label=slot==="FLEX"?"FLEX":slot;
+          const undo=player&&index===lineup.length-1?`<button class="nfl-undo-pick" data-undo-pick aria-label="Undo last pick">Undo</button>`:"";
+          return `<div class="nfl-roster-row${index===lineup.length&&activeSlot?" active":""}${player?" filled":""}"><span class="nfl-roster-position">${label}</span><span class="nfl-roster-player"><span>${player?escapeHtml(player.name):index===lineup.length&&activeSlot?(loading?"Loading player pool…":error?"Unavailable":`Select ${label}`):"Waiting for pick"}${player?`<small>${escapeHtml(teamName(player.pickTeam))} · ${player.season} best season</small>`:""}</span>${player?`<span class="nfl-roster-score">${player.points.toFixed(1)} pts${undo}</span>`:""}</span></div>`;
+        }).join("");
+        const playerList=options.map(player=>`<button class="nfl-candidate" data-nfl-player="${escapeHtml(player.id)}"><span><strong>${escapeHtml(player.name)}</strong><small>${player.season} best season · ${escapeHtml(player.position)}</small></span><span class="nfl-candidate-points">${player.points.toFixed(1)} pts</span></button>`).join("");
+        modal.innerHTML=`<div class="nfl-party-shell"><header class="nfl-party-header"><div class="nfl-party-brand"><span class="nfl-party-mark">🏈</span><span><small>ALL-TIME NFL FANTASY DRAFT</small><strong>NFL PERRY PICK 'EM</strong></span></div><button class="nfl-party-close" aria-label="Close game">×</button></header><h2 class="nfl-party-title" id="modal-title">Build your <span>dream team.</span></h2><p class="nfl-party-lead">Pick one player from each random franchise spin. Every player uses their best available single-season standard fantasy score.</p><div class="nfl-party-topline"><span class="nfl-party-kicker">CHOOSE YOUR ROSTER FORMAT</span><div class="nfl-party-mode"><button data-mode="standard" class="${mode==="standard"?"active":""}">STANDARD · 7 PICKS</button><button data-mode="full" class="${mode==="full"?"active":""}">FULL · 9 PICKS</button></div></div><p class="nfl-format-note">Standard: 1 QB · 2 RB · 2 WR · 1 TE · 1 FLEX. Full adds 1 D/ST and 1 K.</p><div class="nfl-party-layout"><section class="nfl-roster-panel"><h3 class="nfl-panel-heading">YOUR LINEUP <span class="nfl-progress-pill">${lineup.length} / ${slots().length} PICKS</span></h3><div class="nfl-roster-list">${roster}</div><div class="nfl-party-footer"><div class="nfl-total">TOTAL STANDARD FANTASY POINTS<strong><span>${chosenPoints.toFixed(1)}</span> PTS</strong></div>${activeSlot?"":`<button class="nfl-again" id="reset-perry">DRAFT AGAIN ↻</button>`}</div></section><section class="nfl-draft-panel"><h3 class="nfl-panel-heading">🎲 &nbsp;FRANCHISE SPIN <span class="nfl-progress-pill">${loading?"LOADING":error?"ERROR":`${lineup.length+1} OF ${slots().length}`}</span></h3><div class="nfl-team-banner"><div class="nfl-team-meta">DRAFTING FROM</div><div class="nfl-team-name">${loading?"Loading teams…":error?escapeHtml(error):teamName(currentTeam)}</div><p class="nfl-team-instruction">${!loading&&!error&&activeSlot?`Choose a ${activeSlot==="FLEX"?"RB, WR or TE":activeSlot==="D/ST"?"defense":"kicker"} who played for this team.`:!activeSlot?"Lineup complete — you're ready to play again!":""}</p><div class="nfl-party-controls">${activeSlot?`<button class="nfl-spin-button" id="reroll-team" ${loading||error?"disabled":""}>↻ &nbsp;SPIN ANOTHER TEAM</button>`:""}</div></div>${activeSlot?`<div class="nfl-search-wrap"><input class="nfl-search-input" type="search" value="${escapeHtml(query)}" placeholder="Search this team's players…" aria-label="Search eligible players"></div><div class="nfl-candidate-count">${loading?"Loading historical player data…":error?escapeHtml(error):`${filteredOptions.length} eligible ${activeSlot} player${filteredOptions.length===1?"":"s"} · sorted by best season points`}</div><div class="nfl-party-candidates">${loading?'<div class="nfl-party-loading">Loading player and team history…</div>':error?'<div class="nfl-empty">NFL history could not be loaded. Close the game and try again.</div>':playerList||`<div class="nfl-empty">${filteredOptions.length?"No players match that search.":"No eligible player for this team and position. Spin another team to continue."}</div>`}</div>`:`<div class="nfl-empty">All roster spots are filled. Your final lineup is ready.</div>`}<p class="nfl-source">Standard scoring is non-PPR. Historical data currently covers 1999–2024 and includes retired players. <a href="https://github.com/nflverse/nflverse-data" target="_blank" rel="noopener noreferrer">Data source: nflverse ↗</a></p></section></div></div>`;
+        modal.querySelector(".nfl-party-close").addEventListener("click",closeModal);
         modal.querySelectorAll("[data-mode]").forEach(button=>button.addEventListener("click",()=>{
           if(mode===button.dataset.mode)return;
-          mode=button.dataset.mode;lineup=[];currentTeam=data?randomTeam():"";draw();
+          mode=button.dataset.mode;lineup=[];query="";currentTeam=data?randomTeam(currentTeam):"";draw();
         }));
         modal.querySelectorAll("[data-nfl-player]").forEach(button=>button.addEventListener("click",()=>{
           const player=data.players.find(item=>item.id===button.dataset.nflPlayer);
-          if(!player||!activeSlot||!player.teams.includes(currentTeam))return;
+          if(!player||!activeSlot||!player.teams.includes(currentTeam)||lineup.some(item=>item.id===player.id))return;
           lineup.push({...player,slot:activeSlot,pickTeam:currentTeam});
-          if(lineup.length<slots().length)currentTeam=randomTeam();
+          query="";
+          if(lineup.length<slots().length)currentTeam=randomTeam(currentTeam);
           draw();
         }));
-        modal.querySelector("#reroll-team")?.addEventListener("click",()=>{currentTeam=randomTeam();draw()});
-        modal.querySelector("#reset-perry")?.addEventListener("click",()=>{lineup=[];currentTeam=randomTeam();draw()});
+        modal.querySelector("#reroll-team")?.addEventListener("click",()=>{currentTeam=randomTeam(currentTeam);query="";draw()});
+        modal.querySelector("#reset-perry")?.addEventListener("click",()=>{lineup=[];query="";currentTeam=randomTeam(currentTeam);draw()});
+        modal.querySelector("[data-undo-pick]")?.addEventListener("click",()=>{
+          const lastPick=lineup.pop();
+          if(lastPick)currentTeam=lastPick.pickTeam;
+          query="";
+          draw();
+        });
+        modal.querySelector(".nfl-search-input")?.addEventListener("input",event=>{
+          query=event.target.value;
+          const cursor=event.target.selectionStart;
+          draw();
+          const nextInput=modal.querySelector(".nfl-search-input");
+          nextInput?.focus();
+          nextInput?.setSelectionRange(cursor,cursor);
+        });
       }
       draw();
       fetch("/api/nfl/perry-party",{headers:{Accept:"application/json"}}).then(async response=>{
         const payload=await response.json();
         if(!response.ok)throw new Error(payload.error||`NFL fantasy data returned HTTP ${response.status}`);
+        if(!Array.isArray(payload.teams)||payload.teams.length!==32||!Array.isArray(payload.players)||!payload.players.length)throw new Error("The NFL fantasy feed returned incomplete team or player data.");
         if(session!==modalGeneration)return;
         data=payload;
         currentTeam=randomTeam();
@@ -1005,7 +1032,7 @@
         draw();
       }).catch(failure=>{
         if(session!==modalGeneration)return;
-        loading=false;error=`Historical NFL player data could not be loaded: ${failure.message}`;draw();
+        loading=false;error=`Historical NFL data could not be loaded: ${failure.message}`;draw();
       });
     }
     function openDraft(){
