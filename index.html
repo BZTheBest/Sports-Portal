@@ -22,6 +22,73 @@
     @media(max-width:650px){.wrap{width:calc(100% - 30px)}.topbar{gap:8px}.top-actions{gap:5px;flex-wrap:wrap;justify-content:flex-end}.draft-button{padding:8px 9px;font-size:9px}.index-count{display:none}.brand-note{display:none}main{padding-top:56px}.intro h1{letter-spacing:-2.5px}.intro>p{font-size:13px;line-height:1.6}.search{height:58px}.search input{font-size:14px}.sport-filters{justify-content:flex-start;margin:22px 0 26px}.home-panel{padding:18px}.home-panel-head{flex-direction:column}.home-bottom{align-items:flex-start;flex-direction:column}.facts{grid-template-columns:repeat(2,1fr)}.highlight-grid{grid-template-columns:1fr}.profile-top,.profile-body{padding:18px}.value-row{align-items:flex-start;flex-direction:column}.source-link{font-size:10px}.stats-grid{grid-template-columns:1fr}.stats-heading{align-items:flex-start;flex-direction:column}.pool{grid-template-columns:repeat(2,1fr)}.nba-pool{grid-template-columns:1fr}.slot{min-width:60px;font-size:8px}.pitch-line{gap:4px}.award-form{grid-template-columns:1fr}footer{flex-direction:column}}
     @media(max-width:650px){.portal-choices,.game-grid{grid-template-columns:1fr}.portal-choice{min-height:290px;padding:24px}.portal-choice-icon{margin-bottom:32px}.portal-nav button{padding:8px;font-size:9px}.screen-title{align-items:flex-start}.nfl-party-options{grid-template-columns:1fr}.nfl-slot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     .nfl-format-note{margin:-5px 0 12px;color:#a9a1ae;font-size:10px;line-height:1.45}
+    .backdrop.nfl-game-backdrop{padding:0;background:#08090bf2}
+    .modal.nfl-game-modal{width:100vw;height:100dvh;max-height:100dvh;overflow:auto;padding:clamp(16px,2.1vw,30px) clamp(18px,3vw,46px);border:0;border-radius:0;background:radial-gradient(ellipse at 86% 12%,#37174766,transparent 36%),linear-gradient(125deg,#111114 0%,#18151d 55%,#111114 100%);box-shadow:none}
+    .nfl-party-shell{width:min(1500px,100%);min-height:100%;margin:auto}
+    .nfl-party-header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:14px;border-bottom:1px solid #ffffff20}
+    .nfl-party-brand{display:flex;align-items:center;gap:12px}
+    .nfl-party-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#8b35d1;color:#fff;font-size:23px}
+    .nfl-party-brand small{display:block;color:#a6a0ad;font:9px "DM Mono",monospace;letter-spacing:1.6px}
+    .nfl-party-brand strong{display:block;margin-top:3px;font:700 19px "Space Grotesk",sans-serif;letter-spacing:-.4px}
+    .nfl-party-close{display:grid;place-items:center;width:38px;height:38px;border:1px solid #ffffff28;border-radius:9px;background:#ffffff08;color:#fff;font-size:22px}
+    .nfl-party-title{margin:15px 0 4px;font:700 clamp(25px,3vw,38px)/1 "Space Grotesk",sans-serif;letter-spacing:-1.3px}
+    .nfl-party-title span{color:#bc66ff}
+    .nfl-party-lead{margin:0;color:#b8b2bf;font-size:12px;line-height:1.45}
+    .nfl-party-topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 8px}
+    .nfl-party-kicker{color:#aaa2b1;font:9px "DM Mono",monospace;letter-spacing:1.2px}
+    .nfl-party-mode{display:flex;gap:6px;margin:0}
+    .nfl-party-mode button{border:1px solid #484050;border-radius:7px;background:#17151b;color:#c5becd;padding:8px 11px;font-size:10px;font-weight:800}
+    .nfl-party-mode button.active{border-color:#b95cff;background:#4b2072;color:#fff}
+    .nfl-format-note{margin:0 0 9px;color:#a9a1ae;font-size:10px;line-height:1.45}
+    .nfl-party-layout{display:grid;grid-template-columns:minmax(0,3fr) minmax(270px,1fr);gap:14px;align-items:stretch}
+    .nfl-roster-panel,.nfl-draft-panel{min-width:0;border:1px solid #ffffff1b;border-radius:12px;background:#0d0e11b8;padding:12px}
+    .nfl-roster-panel{display:flex;flex-direction:column}
+    .nfl-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;color:#ded9e3;font:10px "DM Mono",monospace;letter-spacing:1px}
+    .nfl-progress-pill{padding:5px 8px;border:1px solid #684185;border-radius:20px;color:#dfbaff;font-size:9px;white-space:nowrap}
+    .nfl-roster-list{display:grid;grid-auto-rows:minmax(max(48px,8.33vh),1fr);gap:5px}
+    .nfl-roster-row{display:grid;grid-template-columns:minmax(84px,14%) minmax(0,1fr);min-height:max(48px,8.33vh);border:1px solid #ffffff23;border-radius:9px;overflow:hidden;background:#151419}
+    .nfl-roster-position{display:grid;place-items:center;background:linear-gradient(145deg,#8b22c4,#61139b);color:white;font:800 clamp(18px,2.5vw,29px) "Space Grotesk",sans-serif}
+    .nfl-roster-player{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding:8px clamp(10px,1.5vw,20px)}
+    .nfl-roster-player span{min-width:0;overflow-wrap:anywhere;color:#f4f0f7;font-size:clamp(13px,1.5vw,18px);font-weight:700}
+    .nfl-roster-player small{display:block;margin-top:4px;color:#aaa2b1;font:10px "DM Mono",monospace;font-weight:400}
+    .nfl-roster-score{flex:none;color:#dfbaff;font:11px "DM Mono",monospace;text-align:right}
+    .nfl-roster-row.active{border-color:#c264ff;box-shadow:0 0 0 1px #b958ef44}
+    .nfl-roster-row.active .nfl-roster-position{background:linear-gradient(145deg,#b14be7,#7620ae)}
+    .nfl-roster-row.filled{border-color:#54435f}
+    .nfl-draft-panel{display:flex;flex-direction:column}
+    .nfl-team-banner{position:relative;overflow:hidden;margin:0 0 9px;padding:clamp(16px,2vw,24px);border:1px solid #70459a;border-radius:10px;background:linear-gradient(120deg,#532782,#321847);color:white}
+    .nfl-team-banner:after{content:"";position:absolute;right:-15px;top:-35px;width:130px;height:130px;border:16px solid #ffffff12;border-radius:50%;pointer-events:none}
+    .nfl-team-meta{position:relative;z-index:1;color:#e3c9f8;font:9px "DM Mono",monospace;letter-spacing:1px}
+    .nfl-team-name{position:relative;z-index:1;margin:8px 0 5px;font:700 clamp(21px,2.2vw,30px)/1.08 "Space Grotesk",sans-serif;letter-spacing:-.6px;overflow-wrap:anywhere}
+    .nfl-team-instruction{position:relative;z-index:1;margin:0;color:#eadcf4;font-size:11px;line-height:1.5}
+    .nfl-party-controls{position:relative;z-index:1;display:flex;gap:7px;margin-top:13px}
+    .nfl-party-controls button{min-height:38px;border:1px solid #ffffff38;border-radius:7px;padding:8px 11px;font-size:10px;font-weight:800}
+    .nfl-spin-button{background:#ff821c;color:#241207;border-color:#ff9a42!important}
+    .nfl-spin-button:hover{background:#ffa04f}
+    .nfl-search-wrap{position:relative;margin:4px 0}
+    .nfl-search-input{width:100%;height:39px;border:1px solid #3c3742;border-radius:7px;padding:0 11px;background:#17151b;color:#fff;outline:0;font-size:11px}
+    .nfl-search-input:focus{border-color:#bd6bfa;box-shadow:0 0 0 3px #bd6bfa20}
+    .nfl-candidate-count{margin:6px 1px;color:#a8a0ad;font:9px "DM Mono",monospace}
+    .nfl-party-candidates{display:grid;gap:6px;max-height:clamp(140px,30vh,330px);overflow:auto;padding-right:3px}
+    .nfl-candidate{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:45px;width:100%;text-align:left;border:1px solid #ffffff1b;border-radius:7px;background:#17161b;padding:7px 9px;color:#f5f2f7}
+    .nfl-candidate:hover{border-color:#c264ff;background:#211829}
+    .nfl-candidate strong{display:block;font-size:11px}
+    .nfl-candidate small{display:block;margin-top:4px;color:#aaa2b1;font:9px "DM Mono",monospace}
+    .nfl-candidate-points{flex:none;color:#e1b4ff;font:700 10px "DM Mono",monospace}
+    .nfl-empty{padding:14px 12px;border:1px dashed #504656;border-radius:8px;color:#bbb3c1;font-size:11px;line-height:1.55}
+    .nfl-party-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:10px;border-top:1px solid #ffffff1b}
+    .nfl-total{color:#c3bbc9;font:9px "DM Mono",monospace;letter-spacing:.5px}
+    .nfl-total strong{display:block;margin-top:4px;color:#fff;font:700 20px "Space Grotesk",sans-serif}
+    .nfl-total strong span{color:#d795ff}
+    .nfl-again{border:1px solid #a950db;border-radius:7px;background:#7d27ad;color:white;padding:10px 13px;font-size:10px;font-weight:800}
+    .nfl-again:hover{background:#963ac8}
+    .nfl-source{margin:10px 1px 0;color:#aaa2b1;font-size:9px;line-height:1.5}
+    .nfl-source a{color:#d6a1f3;text-decoration:underline;text-underline-offset:2px}
+    .nfl-party-loading{padding:24px 12px;text-align:center;color:#bbb3c1;font-size:12px}
+    .nfl-undo-pick{display:block;margin:4px 0 0 auto;border:0;background:transparent;color:#d59cf8;padding:2px;font-size:9px;white-space:nowrap}
+    .nfl-undo-pick:hover{color:#fff}
+    @media(max-width:760px){.backdrop.nfl-game-backdrop{padding:0}.modal.nfl-game-modal{height:100dvh;max-height:100dvh;padding:14px}.nfl-party-layout{grid-template-columns:1fr}.nfl-party-candidates{max-height:28vh}.nfl-roster-list{grid-template-rows:none;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.nfl-roster-row{grid-template-columns:54px minmax(0,1fr);min-height:62px}.nfl-roster-position{font-size:13px}.nfl-party-topline{align-items:flex-start;flex-direction:column}.nfl-party-mode{width:100%}.nfl-party-mode button{flex:1;padding:9px 5px}.nfl-party-footer{margin-top:12px}.nfl-draft-panel{order:-1}}
+    @media(max-width:410px){.nfl-roster-list{grid-template-columns:1fr}.nfl-party-brand strong{font-size:16px}.nfl-roster-row{min-height:52px}.nfl-party-title{font-size:25px}}
   </style>
 </head>
 <body>
@@ -956,7 +1023,7 @@
       const session=++modalGeneration;
       const playerSlots=["QB","RB","RB","WR","WR","TE","FLEX"];
       const fullSlots=[...playerSlots,"D/ST","K"];
-      let data=null,mode="standard",lineup=[],currentTeam="",loading=true,error="",query="";
+      let data=null,mode="standard",lineup=[],currentTeam="",loading=true,error="",query="",loadAttempt=0;
       backdrop.classList.add("nfl-game-backdrop","show");
       modal.classList.add("nfl-game-modal");
       function teamName(abbreviation){
@@ -1019,21 +1086,43 @@
           nextInput?.focus();
           nextInput?.setSelectionRange(cursor,cursor);
         });
+        if(error){
+          const teamTitle=modal.querySelector(".nfl-team-name");
+          const instruction=modal.querySelector(".nfl-team-instruction");
+          const controls=modal.querySelector(".nfl-party-controls");
+          if(teamTitle)teamTitle.textContent="Team data unavailable";
+          if(instruction)instruction.textContent=error;
+          if(controls){
+            const retry=document.createElement("button");
+            retry.className="nfl-spin-button";
+            retry.type="button";
+            retry.textContent="↻  RETRY DATA LOAD";
+            retry.addEventListener("click",loadData);
+            controls.append(retry);
+          }
+        }
       }
-      draw();
-      fetch("/api/nfl/perry-party",{headers:{Accept:"application/json"}}).then(async response=>{
-        const payload=await response.json();
-        if(!response.ok)throw new Error(payload.error||`NFL fantasy data returned HTTP ${response.status}`);
-        if(!Array.isArray(payload.teams)||payload.teams.length!==32||!Array.isArray(payload.players)||!payload.players.length)throw new Error("The NFL fantasy feed returned incomplete team or player data.");
-        if(session!==modalGeneration)return;
-        data=payload;
-        currentTeam=randomTeam();
-        loading=false;
-        draw();
-      }).catch(failure=>{
-        if(session!==modalGeneration)return;
-        loading=false;error=`Historical NFL data could not be loaded: ${failure.message}`;draw();
-      });
+      async function loadData(){
+        const attempt=++loadAttempt;
+        loading=true;error="";draw();
+        try{
+          const response=await fetch("/api/nfl/perry-party",{headers:{Accept:"application/json"}});
+          const payload=await response.json();
+          if(!response.ok)throw new Error(payload.error||`NFL fantasy data returned HTTP ${response.status}`);
+          if(!Array.isArray(payload.teams)||payload.teams.length!==32||!Array.isArray(payload.players)||!payload.players.length)throw new Error("The NFL fantasy feed returned incomplete team or player data.");
+          if(session!==modalGeneration||attempt!==loadAttempt)return;
+          data=payload;
+          currentTeam=randomTeam();
+          loading=false;
+          draw();
+        }catch(failure){
+          if(session!==modalGeneration||attempt!==loadAttempt)return;
+          loading=false;
+          error=`Historical NFL data could not be loaded: ${failure.message}`;
+          draw();
+        }
+      }
+      loadData();
     }
     function openDraft(){
       const session=++modalGeneration;
