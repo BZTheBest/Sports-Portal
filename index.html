@@ -10,23 +10,36 @@
     :root{color-scheme:dark;--bg:#10130f;--surface:#181c17;--surface2:#20251e;--line:#30372d;--text:#f0f3eb;--muted:#989f92;--lime:#c8f169;--orange:#ff9968}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px "DM Sans",sans-serif}button,input,select{font:inherit}button{color:inherit;cursor:pointer}a{color:inherit;text-decoration:none}
     .wrap{width:min(1120px,calc(100% - 44px));margin:auto}.topbar{height:74px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:10px;font:700 19px "Space Grotesk",sans-serif;letter-spacing:-.7px}.brand-icon{height:30px;width:30px;display:grid;place-items:center;border-radius:8px;background:var(--lime);color:#141810}.brand-note{font:10px "DM Mono",monospace;letter-spacing:1.3px;color:var(--muted);margin-left:3px}.top-actions{display:flex;align-items:center;gap:10px}.index-count{font:10px "DM Mono",monospace;color:var(--muted);padding:8px 10px;border:1px solid var(--line);border-radius:20px}.draft-button{border:0;background:var(--lime);color:#171a14;padding:10px 13px;border-radius:7px;font-size:11px;font-weight:800}.draft-button:hover,.primary:hover{background:#d9ff93}
-    main{padding:76px 0 70px}.intro{text-align:center}.eyebrow{font:10px "DM Mono",monospace;color:var(--lime);letter-spacing:2px;text-transform:uppercase}.intro h1{font:600 clamp(43px,7vw,74px)/.98 "Space Grotesk",sans-serif;letter-spacing:-4px;margin:17px 0 13px}.intro h1 span{color:var(--lime)}.intro>p{margin:0;color:var(--muted);font-size:15px}.search-wrap{position:relative;width:min(760px,100%);margin:32px auto 16px}.search{height:64px;border:1px solid #444c3f;background:var(--surface);border-radius:12px;display:flex;align-items:center;padding:0 18px;gap:13px;transition:.18s}.search:focus-within{border-color:var(--lime);box-shadow:0 0 0 3px #c8f16919}.search-icon{font-size:23px;color:var(--lime)}.search input{width:100%;border:0;outline:0;background:none;color:var(--text);font-size:16px}.search input::placeholder{color:#777f73}.search kbd{font:10px "DM Mono",monospace;color:var(--muted);border:1px solid #42483e;border-radius:5px;padding:5px 7px;white-space:nowrap}.hint{min-height:20px;color:#7e8679;font:10px "DM Mono",monospace;text-align:center}.sport-filters{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin:28px 0 35px}.filter{border:1px solid var(--line);background:transparent;color:#aab1a4;border-radius:20px;padding:8px 13px;font-size:11px;font-weight:600}.filter.active,.filter:hover{background:#293022;color:var(--lime);border-color:#637348}
+    main{padding:76px 0 70px}.portal-home,.portal-screen,.games-screen{display:none}.portal-home.active,.portal-screen.active,.games-screen.active{display:block}.portal-home{width:min(1040px,100%);margin:22px auto 0}.portal-home-head{text-align:center;margin:0 auto 34px}.portal-home-head h1{font:600 clamp(42px,7vw,70px)/1 "Space Grotesk",sans-serif;letter-spacing:-3px;margin:15px 0}.portal-home-head h1 span{color:var(--lime)}.portal-home-head p{max-width:570px;margin:auto;color:var(--muted);font-size:15px;line-height:1.6}.portal-choices{display:grid;grid-template-columns:1fr 1fr;gap:18px}.portal-choice{min-height:360px;position:relative;overflow:hidden;text-align:left;padding:30px;border:1px solid #3c4635;border-radius:18px;background:linear-gradient(145deg,#20271c,#151a14);transition:transform .18s,border-color .18s,background .18s}.portal-choice:hover{transform:translateY(-4px);border-color:var(--lime);background:linear-gradient(145deg,#293322,#171c16)}.portal-choice.games{background:linear-gradient(145deg,#27251d,#191916);border-color:#4b4534}.portal-choice.games:hover{border-color:#ffc66d}.portal-choice-icon{width:66px;height:66px;display:grid;place-items:center;border-radius:17px;background:#303c25;color:var(--lime);font-size:34px;margin-bottom:44px}.portal-choice.games .portal-choice-icon{background:#393124;color:#ffd27c}.portal-choice h2{font:600 clamp(26px,3vw,36px) "Space Grotesk",sans-serif;margin:0 0 10px}.portal-choice p{max-width:370px;color:var(--muted);font-size:13px;line-height:1.65;margin:0}.portal-choice-cta{display:inline-flex;align-items:center;gap:10px;margin-top:27px;padding:11px 15px;border-radius:8px;background:var(--lime);color:#171a14;font-weight:800;font-size:11px}.portal-choice.games .portal-choice-cta{background:#ffd27c}.portal-choice-art{position:absolute;right:24px;top:20px;font-size:100px;opacity:.08;transform:rotate(-12deg);pointer-events:none}.portal-home-foot{text-align:center;color:#747c71;font:10px "DM Mono",monospace;margin-top:22px;letter-spacing:.7px}.portal-screen{padding-top:6px}.portal-nav{display:flex;gap:7px}.portal-nav button{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:7px;padding:9px 12px;font-size:10px;font-weight:700}.portal-nav button.active,.portal-nav button:hover{border-color:#657746;color:var(--lime);background:#22291e}.screen-title{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:26px}.screen-title h1{font:600 clamp(32px,5vw,48px) "Space Grotesk",sans-serif;letter-spacing:-1.8px;margin:9px 0 0}.screen-title p{color:var(--muted);font-size:12px;margin:8px 0 0}.screen-back{background:transparent;border:1px solid var(--line);border-radius:7px;padding:9px 12px;color:#c1c8b7;font-size:10px}.game-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.game-card{display:flex;align-items:flex-start;gap:16px;min-height:170px;padding:20px;border:1px solid var(--line);border-radius:13px;background:linear-gradient(145deg,#1d221b,#171a16)}.game-card-icon{height:54px;width:54px;display:grid;place-items:center;flex:none;border-radius:13px;background:#2b3424;font-size:27px}.game-card-copy{flex:1;min-width:0}.game-card-copy small{color:var(--lime);font:9px "DM Mono",monospace;letter-spacing:1px}.game-card-copy h2{font:600 19px "Space Grotesk",sans-serif;margin:7px 0}.game-card-copy p{color:var(--muted);font-size:11px;line-height:1.55;margin:0}.game-launch{margin-top:14px;background:transparent;border:1px solid #526141;border-radius:7px;padding:8px 11px;color:var(--lime);font-size:10px;font-weight:800}.game-launch:hover{background:#293322}.game-card.featured{border-color:#675839;background:linear-gradient(145deg,#28261d,#181a16)}.game-card.featured .game-card-icon{background:#3a3122}.game-card.featured .game-card-copy small{color:#ffd27c}.game-card.featured .game-launch{color:#ffd27c;border-color:#70603d}.game-hub-note{margin-top:16px;padding:14px 16px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:11px;line-height:1.6}.nfl-party-settings,.nfl-party-team,.nfl-party-picks,.nfl-party-summary{margin-top:14px;padding:14px;border:1px solid var(--line);background:#20251e;border-radius:9px}.nfl-party-mode{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.nfl-party-mode button{border:1px solid #3a4236;background:#171c16;border-radius:7px;padding:9px 12px;color:#b8c0af;font-size:10px}.nfl-party-mode button.active{border-color:#e4b75c;color:#ffd27c;background:#322b1f}.nfl-spin-team{font:600 clamp(20px,4vw,30px) "Space Grotesk",sans-serif;color:#ffd27c;margin-top:7px}.nfl-slot-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}.nfl-slot-chip{padding:8px 10px;border:1px solid #343a30;border-radius:7px;color:var(--muted);font:9px "DM Mono",monospace}.nfl-slot-chip.active{border-color:#e1b34e;color:#ffd27c;background:#302a20}.nfl-party-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.nfl-player-option{display:flex;justify-content:space-between;gap:12px;align-items:center;text-align:left;background:#171c16;border:1px solid #363d32;border-radius:8px;padding:12px}.nfl-player-option:hover{border-color:#ffd27c}.nfl-player-option strong{display:block;font:600 12px "Space Grotesk",sans-serif}.nfl-player-option small{display:block;margin-top:4px;color:var(--muted);font-size:9px}.nfl-player-points{white-space:nowrap;color:#ffd27c;font:11px "DM Mono",monospace}.nfl-party-summary{font:12px "DM Mono",monospace;color:#c5ccbb}.nfl-party-summary b{color:#ffd27c}.nfl-party-pick-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid #30372d;font-size:11px}.nfl-party-pick-row:last-child{border-bottom:0}.nfl-party-pick-row small{color:var(--muted);font-size:9px}.nfl-party-spinner{display:inline-flex;align-items:center;gap:8px;color:#ffd27c;font:10px "DM Mono",monospace}
+    .intro{text-align:center}.eyebrow{font:10px "DM Mono",monospace;color:var(--lime);letter-spacing:2px;text-transform:uppercase}.intro h1{font:600 clamp(43px,7vw,74px)/.98 "Space Grotesk",sans-serif;letter-spacing:-4px;margin:17px 0 13px}.intro h1 span{color:var(--lime)}.intro>p{margin:0;color:var(--muted);font-size:15px}.search-wrap{position:relative;width:min(760px,100%);margin:32px auto 16px}.search{height:64px;border:1px solid #444c3f;background:var(--surface);border-radius:12px;display:flex;align-items:center;padding:0 18px;gap:13px;transition:.18s}.search:focus-within{border-color:var(--lime);box-shadow:0 0 0 3px #c8f16919}.search-icon{font-size:23px;color:var(--lime)}.search input{width:100%;border:0;outline:0;background:none;color:var(--text);font-size:16px}.search input::placeholder{color:#777f73}.search kbd{font:10px "DM Mono",monospace;color:var(--muted);border:1px solid #42483e;border-radius:5px;padding:5px 7px;white-space:nowrap}.hint{min-height:20px;color:#7e8679;font:10px "DM Mono",monospace;text-align:center}.sport-filters{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin:28px 0 35px}.filter{border:1px solid var(--line);background:transparent;color:#aab1a4;border-radius:20px;padding:8px 13px;font-size:11px;font-weight:600}.filter.active,.filter:hover{background:#293022;color:var(--lime);border-color:#637348}
     .home-state{width:min(760px,100%);margin:34px auto 0;text-align:left}.home-panel{background:linear-gradient(130deg,#1c2119,#161a15);border:1px solid var(--line);border-radius:14px;padding:23px}.home-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.home-panel h2{font:600 19px "Space Grotesk",sans-serif;margin:0 0 7px}.home-panel p{font-size:12px;color:var(--muted);margin:0;line-height:1.6}.search-ideas{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}.idea{border:1px solid #343c30;background:#22271f;color:#d4dacd;border-radius:7px;padding:9px 11px;font-size:11px}.idea:hover{border-color:var(--lime);color:var(--lime)}.home-bottom{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:15px;font:10px "DM Mono",monospace;color:#828a7d}
     .results{display:none;width:min(760px,100%);margin:24px auto 0}.results.show{display:block}.results-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.results-head strong{font:600 14px "Space Grotesk",sans-serif}.results-head span{font:10px "DM Mono",monospace;color:var(--muted)}.result-list{display:grid;gap:8px}.result{width:100%;display:flex;align-items:center;text-align:left;gap:13px;padding:13px 15px;border:1px solid var(--line);border-radius:9px;background:var(--surface);transition:.15s}.result:hover{border-color:#748753;background:#1d231a}.result-icon{height:38px;width:38px;display:grid;place-items:center;background:#272d23;border-radius:9px;font-size:18px;flex:none}.result-copy{min-width:0;flex:1}.result-copy b{font:600 14px "Space Grotesk",sans-serif;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.result-copy small{color:var(--muted);font-size:11px;display:block;margin-top:4px}.result-arrow{color:var(--lime);font-size:18px}.empty-result{padding:18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:12px;line-height:1.6}
     .profile{display:none;width:min(900px,100%);margin:25px auto 0}.profile.show{display:block}.profile-card{background:var(--surface);border:1px solid #414a39;border-radius:14px;overflow:hidden}.profile-top{display:flex;align-items:flex-start;justify-content:space-between;padding:23px 25px;border-bottom:1px solid var(--line);gap:20px}.profile-top h2{font:600 clamp(25px,4vw,36px) "Space Grotesk",sans-serif;letter-spacing:-1.3px;margin:9px 0 4px}.profile-sub{color:var(--muted);font-size:12px}.close-profile{border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--muted);width:32px;height:32px;font-size:18px}.profile-body{padding:21px 25px 24px}    .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.fact{min-height:69px;padding:12px;background:#20251e;border-radius:8px}.fact small{display:block;color:var(--muted);font:9px "DM Mono",monospace;letter-spacing:.6px;margin-bottom:8px}.fact b{font-size:12px;font-weight:600}.value-row{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 15px;border:1px solid #394332;background:#20261d;border-radius:9px}.value-label{font:10px "DM Mono",monospace;color:#b1bb9f}.value-amount{font:600 18px "Space Grotesk",sans-serif;color:var(--lime);margin-top:5px}.source-link{color:var(--lime);font-size:11px}.profile-note{font-size:11px;color:#a9b0a2;line-height:1.65;margin:15px 1px 0}.profile-note a{color:var(--lime)}.provider-stats{margin-top:13px;padding:14px;border:1px solid var(--line);border-radius:9px;background:#1b2019}.stats-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.stats-heading strong{font:600 13px "Space Grotesk",sans-serif}.stats-heading span{color:var(--muted);font:9px "DM Mono",monospace}.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.stat-item{padding:9px;background:#22271f;border-radius:6px;min-width:0}.stat-item small{display:block;font:9px "DM Mono",monospace;color:var(--muted);margin-bottom:5px}.stat-item b{font-size:11px;overflow-wrap:anywhere}.stats-empty{font-size:11px;color:var(--muted);line-height:1.6}.unverified{padding:13px 14px;background:#28241e;border:1px solid #5b4b37;border-radius:8px;color:#e3c9a7;font-size:11px;line-height:1.55;margin-top:12px}
     .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.fact{min-height:69px;padding:12px;background:#20251e;border-radius:8px}.fact small{display:block;color:var(--muted);font:9px "DM Mono",monospace;letter-spacing:.6px;margin-bottom:8px}.fact b{font-size:12px;font-weight:600}.value-row{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 15px;border:1px solid #394332;background:#20261d;border-radius:9px}.value-label{font:10px "DM Mono",monospace;color:#b1bb9f}.value-amount{font:600 18px "Space Grotesk",sans-serif;color:var(--lime);margin-top:5px}.source-link{color:var(--lime);font-size:11px}.profile-note{font-size:11px;color:#a9b0a2;line-height:1.65;margin:15px 1px 0}.profile-note a{color:var(--lime)}.profile-highlights{margin-top:13px;padding:14px;border:1px solid #394332;border-radius:9px;background:#20251e}.highlight-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.highlight-head strong{font:600 13px "Space Grotesk",sans-serif}.highlight-head span{font:9px "DM Mono",monospace;color:var(--muted)}.highlight-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.highlight-item{padding:10px;background:#181d17;border-radius:6px}.highlight-item small{display:block;font:9px "DM Mono",monospace;color:var(--muted);margin-bottom:6px}.highlight-item b{font:600 14px "Space Grotesk",sans-serif;color:var(--lime)}.highlight-item p{font-size:10px;color:#adb4a6;line-height:1.45;margin:6px 0 0}.provider-stats{margin-top:13px;padding:14px;border:1px solid var(--line);border-radius:9px;background:#1b2019}.stats-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.stats-heading strong{font:600 13px "Space Grotesk",sans-serif}.stats-heading span{color:var(--muted);font:9px "DM Mono",monospace}.coverage-note{font-size:10px;color:#b5bcac;line-height:1.5;margin:0 0 11px}.career-group{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}.career-group:first-of-type{border-top:0;padding-top:0;margin-top:0}.career-title{font:10px "DM Mono",monospace;letter-spacing:.7px;color:var(--lime);margin-bottom:8px}.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.stat-item{padding:9px;background:#22271f;border-radius:6px;min-width:0}.stat-item small{display:block;font:9px "DM Mono",monospace;color:var(--muted);margin-bottom:5px}.stat-item b{font-size:11px;overflow-wrap:anywhere}.season-details{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}.season-details summary{cursor:pointer;color:#c5ccbb;font:10px "DM Mono",monospace}.season-list{display:grid;gap:7px;margin-top:10px}.season-row{background:#22271f;border-radius:6px;padding:9px}.season-row small{display:block;color:var(--muted);font:9px "DM Mono",monospace;margin-bottom:5px}.season-row span{display:inline-block;font-size:10px;margin:3px 8px 0 0}.stats-empty{font-size:11px;color:var(--muted);line-height:1.6}.unverified{padding:13px 14px;background:#28241e;border:1px solid #5b4b37;border-radius:8px;color:#e3c9a7;font-size:11px;line-height:1.55;margin-top:12px}
     .extras{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:23px auto 0}.extra{color:#c3cabd;border:1px solid var(--line);background:transparent;border-radius:8px;padding:10px 13px;font-size:11px}.extra:hover{border-color:#637348;color:var(--lime)}.disclaimer{max-width:760px;margin:26px auto 0;text-align:center;color:#70786d;font:10px/1.6 "DM Mono",monospace}.disclaimer b{color:#9ba591;font-weight:500}footer{border-top:1px solid var(--line);padding:19px 0;color:#747c71;font:9px "DM Mono",monospace;display:flex;justify-content:space-between;gap:12px}
+    .availability-container:empty{display:none}.availability-card{margin-top:13px;padding:14px;border:1px solid #554b35;border-radius:9px;background:#28241e}.availability-card strong{font:600 13px "Space Grotesk",sans-serif;color:#f0d7a4}.availability-card p{font-size:11px;color:#c5bdad;line-height:1.55;margin:7px 0 0}.nba-daily-controls{display:flex;gap:8px;margin:14px 0}.nba-daily-controls input{flex:1;min-width:0;padding:11px 12px;border:1px solid var(--line);border-radius:7px;background:#22271f;color:var(--text);outline:0}.nba-pool{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;max-height:300px;overflow:auto}.nba-choice{display:flex;justify-content:space-between;gap:8px;align-items:center;text-align:left;background:#22271f;border:1px solid #343a30;border-radius:7px;padding:10px;font-size:10px}.nba-choice:hover:not(:disabled){border-color:var(--lime)}.nba-choice small{display:block;color:var(--muted);font-size:9px;margin-top:4px}.nba-choice:disabled{opacity:.5}.nba-lineup{display:grid;gap:6px;margin:12px 0}.nba-lineup-row{display:flex;justify-content:space-between;gap:8px;padding:9px 10px;background:#20251e;border-radius:6px;font-size:10px}.nba-lineup-row b{color:var(--lime)}.nba-remove{border:0;background:transparent;color:var(--muted);font-size:16px;padding:0 4px}.nba-score{padding:12px;border:1px solid #394332;background:#20261d;border-radius:8px;font:11px "DM Mono",monospace;color:var(--lime);margin:12px 0}
     .backdrop{position:fixed;inset:0;background:#000b;z-index:5;display:none;align-items:center;justify-content:center;padding:18px}.backdrop.show{display:flex}.modal{width:min(760px,100%);max-height:90vh;overflow:auto;background:#181c17;border:1px solid #41493c;border-radius:14px;padding:23px;box-shadow:0 25px 90px #000b}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal h2{font:600 24px "Space Grotesk",sans-serif;margin:12px 0 5px}.modal-copy{font-size:12px;color:var(--muted);line-height:1.55}.modal-close{border:0;background:none;color:var(--muted);font-size:22px}.formation-row{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.formation{background:#22271f;border:1px solid var(--line);border-radius:7px;padding:9px 11px;font-size:11px}.formation.active{border-color:var(--lime);color:var(--lime)}.pitch{background:linear-gradient(180deg,#223022,#182319);border:1px solid #384937;border-radius:10px;padding:14px;margin:14px 0}.pitch-line{display:flex;justify-content:center;gap:8px;margin:8px 0}.slot{min-width:76px;max-width:110px;min-height:54px;padding:7px 8px;border:1px dashed #65755b;border-radius:7px;background:#182219;color:#dce7d3;font-size:9px;text-align:center}.slot.filled{border-style:solid;border-color:#78925b;background:#2b3a26}.slot small{display:block;color:#aab69d;font:8px "DM Mono",monospace;margin-bottom:3px}.pool-title{font:10px "DM Mono",monospace;color:var(--lime);letter-spacing:1px;margin:17px 0 9px}.pool{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.pick{min-height:44px;text-align:left;background:#22271f;border:1px solid #343a30;border-radius:7px;padding:9px;font-size:10px}.pick:hover:not(:disabled){border-color:var(--lime)}.pick:disabled{opacity:.35;cursor:not-allowed}.modal-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:13px}.progress{font:10px "DM Mono",monospace;color:var(--muted)}.primary{border:0;background:var(--lime);color:#161910;padding:10px 13px;border-radius:7px;font-size:11px;font-weight:800}.primary:disabled{opacity:.4;cursor:not-allowed}.award-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.award-form label{font:9px "DM Mono",monospace;color:var(--muted);letter-spacing:.7px}.award-form input,.award-form select{display:block;width:100%;margin-top:7px;padding:11px;border:1px solid var(--line);border-radius:7px;background:#22271f;color:var(--text)}.announcement{display:none;background:#242a20;border:1px solid #536341;border-radius:9px;padding:15px;margin-top:14px;color:var(--lime);font:700 17px "Space Grotesk",sans-serif}.announcement.show{display:block}.announcement small{display:block;color:var(--muted);font:10px "DM Mono",monospace;margin-top:8px}.draft-search{width:100%;margin:12px 0 7px;padding:11px 12px;border:1px solid var(--line);border-radius:7px;background:#22271f;color:var(--text);outline:0}.draft-search:focus{border-color:var(--lime)}.draft-note,.draft-status{font-size:10px;color:var(--muted);line-height:1.5;margin:6px 0}.draft-summary{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;background:#20251e;border:1px solid var(--line);border-radius:7px;font:10px "DM Mono",monospace}.draft-summary b{color:var(--lime)}.pick{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:3px 8px}.pick-info{display:contents}.pick-info b{grid-column:1;grid-row:1;min-width:0;overflow-wrap:anywhere}.pick-info small{grid-column:1/-1;grid-row:2;display:block;margin-top:3px;white-space:normal;overflow-wrap:anywhere;color:var(--muted)}.pick-price{grid-column:2;grid-row:1;color:var(--lime);font:9px "DM Mono",monospace;white-space:nowrap}.pick:disabled{opacity:.4}
-    @media(max-width:650px){.wrap{width:calc(100% - 30px)}main{padding-top:56px}.intro h1{letter-spacing:-2.5px}.intro>p{font-size:13px;line-height:1.6}.search{height:58px}.search input{font-size:14px}.sport-filters{justify-content:flex-start;margin:22px 0 26px}.home-panel{padding:18px}.home-panel-head{flex-direction:column}.home-bottom{align-items:flex-start;flex-direction:column}.facts{grid-template-columns:repeat(2,1fr)}.highlight-grid{grid-template-columns:1fr}.profile-top,.profile-body{padding:18px}.value-row{align-items:flex-start;flex-direction:column}.source-link{font-size:10px}.stats-grid{grid-template-columns:1fr}.stats-heading{align-items:flex-start;flex-direction:column}.pool{grid-template-columns:repeat(2,1fr)}.slot{min-width:60px;font-size:8px}.pitch-line{gap:4px}.award-form{grid-template-columns:1fr}footer{flex-direction:column}}
+    @media(max-width:650px){.wrap{width:calc(100% - 30px)}.topbar{gap:8px}.top-actions{gap:5px;flex-wrap:wrap;justify-content:flex-end}.draft-button{padding:8px 9px;font-size:9px}.index-count{display:none}.brand-note{display:none}main{padding-top:56px}.intro h1{letter-spacing:-2.5px}.intro>p{font-size:13px;line-height:1.6}.search{height:58px}.search input{font-size:14px}.sport-filters{justify-content:flex-start;margin:22px 0 26px}.home-panel{padding:18px}.home-panel-head{flex-direction:column}.home-bottom{align-items:flex-start;flex-direction:column}.facts{grid-template-columns:repeat(2,1fr)}.highlight-grid{grid-template-columns:1fr}.profile-top,.profile-body{padding:18px}.value-row{align-items:flex-start;flex-direction:column}.source-link{font-size:10px}.stats-grid{grid-template-columns:1fr}.stats-heading{align-items:flex-start;flex-direction:column}.pool{grid-template-columns:repeat(2,1fr)}.nba-pool{grid-template-columns:1fr}.slot{min-width:60px;font-size:8px}.pitch-line{gap:4px}.award-form{grid-template-columns:1fr}footer{flex-direction:column}}
+    @media(max-width:650px){.portal-choices,.game-grid{grid-template-columns:1fr}.portal-choice{min-height:290px;padding:24px}.portal-choice-icon{margin-bottom:32px}.portal-nav button{padding:8px;font-size:9px}.screen-title{align-items:flex-start}.nfl-party-options{grid-template-columns:1fr}.nfl-slot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="topbar">
-      <a class="brand" href="#" aria-label="Fulltime home"><span class="brand-icon">F</span>FULLTIME <span class="brand-note">PLAYER SEARCH</span></a>
-      <div class="top-actions"><span class="index-count" id="index-count"></span><button class="draft-button" id="draft-open">⚽ BUILD AN XI</button></div>
+      <a class="brand" href="#" id="home-nav" aria-label="Fulltime home"><span class="brand-icon">F</span>FULLTIME <span class="brand-note">SPORTS HUB</span></a>
+      <div class="top-actions"><nav class="portal-nav" aria-label="Main navigation"><button class="portal-nav-button" data-screen="player-screen">Search players</button><button class="portal-nav-button" data-screen="games-screen">Fun minigames</button></nav><span class="index-count" id="index-count"></span></div>
     </header>
     <main>
+      <section class="portal-home active" id="portal-home">
+        <div class="portal-home-head"><div class="eyebrow">YOUR SPORTS UNIVERSE</div><h1>Pick your <span>play.</span></h1><p>Search your favorite athletes or jump straight into quick sports games. Your next move starts here.</p></div>
+        <div class="portal-choices">
+          <button class="portal-choice" data-open-screen="player-screen"><span class="portal-choice-art">⌕</span><span class="portal-choice-icon">⌕</span><h2>Search For Players</h2><p>Find current stars, rising names, and all-time greats across soccer, football, basketball, baseball, hockey, tennis, and more.</p><span class="portal-choice-cta">OPEN PLAYER SEARCH <span>→</span></span></button>
+          <button class="portal-choice games" data-open-screen="games-screen"><span class="portal-choice-art">✦</span><span class="portal-choice-icon">🎮</span><h2>Fun Minigames</h2><p>Draft your dream soccer XI, test your NFL knowledge, chase 90 NBA points, and celebrate the big moments.</p><span class="portal-choice-cta">EXPLORE GAMES <span>→</span></span></button>
+        </div>
+        <div class="portal-home-foot">BUILT FOR FANS · PLAYER DATA + QUICK GAMES · PICK A SIDE TO GET STARTED</div>
+      </section>
+      <section class="portal-screen" id="player-screen">
+        <div class="screen-title"><div><div class="eyebrow">PLAYER DIRECTORY</div><h1>Search For Players</h1><p>Search by full name, first name, or last name.</p></div><button class="screen-back" data-open-screen="portal-home">← HOME</button></div>
       <section class="intro">
         <div class="eyebrow">One search. Every sport.</div>
         <h1>Find <span>your player.</span></h1>
@@ -43,15 +56,26 @@
           <div class="search-ideas">
             <button class="idea" data-query="Jens Peter Hauge">Jens Peter Hauge</button><button class="idea" data-query="Michael Olise">Michael Olise</button><button class="idea" data-query="R9">R9</button><button class="idea" data-query="Joe Montana">Joe Montana</button><button class="idea" data-query="Serena Williams">Serena Williams</button><button class="idea" data-query="LeBron James">LeBron James</button>
           </div>
-          <div class="home-bottom"><span>Player pages appear only after you search.</span><span>✳ Soccer-only Ultimate XI draft</span></div>
+          <div class="home-bottom"><span>Player pages appear only after you search.</span><span>✳ Soccer Ultimate XI · NBA 82-0 daily challenge</span></div>
         </div>
       </section>
       <section class="results" id="results" aria-live="polite"></section>
       <section class="profile" id="profile" aria-live="polite"></section>
       <div class="extras"><button class="extra" id="award-open">🏆 Make a fan-made trophy announcement</button></div>
-      <p class="disclaimer"><b>LIVE LOOKUPS · THESPORTSDB</b> · Live player searches and recorded stats are fetched from <a href="https://www.thesportsdb.com/" target="_blank" rel="noopener noreferrer">TheSportsDB</a> where available; the local index is the fallback. The free API is limited to 30 requests per minute and is intended for development. Coverage varies, and Transfermarkt values are not provided. This site never fills missing stats with guesses.</p>
+      <p class="disclaimer"><b>LIVE DATA · MULTIPLE SOURCES</b> · Soccer club and market values use <a href="https://www.transfermarkt.com/" target="_blank" rel="noopener noreferrer">Transfermarkt</a>; stats and injury reports use <a href="https://www.espn.com/" target="_blank" rel="noopener noreferrer">ESPN</a> and <a href="https://www.thesportsdb.com/" target="_blank" rel="noopener noreferrer">TheSportsDB</a> where available. Official fantasy points currently connect to Premier League FPL; other league points and availability coverage are not assumed. NBA challenge scores are actual ESPN box-score points. Missing data is not guessed.</p>
+      </section>
+      <section class="games-screen" id="games-screen">
+        <div class="screen-title"><div><div class="eyebrow">PLAY A QUICK GAME</div><h1>Fun Minigames</h1><p>Pick a game. Make your lineup. Talk your sports talk.</p></div><button class="screen-back" data-open-screen="portal-home">← HOME</button></div>
+        <div class="game-grid">
+          <article class="game-card"><span class="game-card-icon">⚽</span><div class="game-card-copy"><small>SOCCER · FANTASY DRAFT</small><h2>Ultimate XI</h2><p>Build a real formation from searchable soccer players, choose your league slate, and stay under the $100 budget.</p><button class="game-launch" id="draft-open">BUILD YOUR XI ↗</button></div></article>
+          <article class="game-card featured"><span class="game-card-icon">🏈</span><div class="game-card-copy"><small>NFL · ALL-TIME FANTASY DRAFT</small><h2>NFL Perry Party</h2><p>Spin a random NFL team, then draft the greatest single-season fantasy lineup using standard points. Legends and retired players count too.</p><button class="game-launch" id="nfl-party-open">START PERRY PARTY ↗</button></div></article>
+          <article class="game-card"><span class="game-card-icon">🏀</span><div class="game-card-copy"><small>NBA · DAILY CHALLENGE</small><h2>82-0</h2><p>Draft five players on today's slate. Their real NBA points count toward the 90-point target.</p><button class="game-launch" id="nba-open">PICK TODAY'S FIVE ↗</button></div></article>
+          <article class="game-card"><span class="game-card-icon">🏆</span><div class="game-card-copy"><small>FAN-MADE · JUST FOR FUN</small><h2>Trophy Hype</h2><p>Write a big winner announcement and celebrate your favorite player. This is fan-made, not an official result.</p><button class="game-launch" id="award-open">MAKE AN ANNOUNCEMENT ↗</button></div></article>
+        </div>
+        <div class="game-hub-note"><b>More games are on the way.</b> New sports challenges can be added here without cluttering player search.</div>
+      </section>
     </main>
-    <footer><span>FULLTIME · YOUR SPORTS DESK</span><span>STATIC SITE · SEARCHABLE PLAYER INDEX</span></footer>
+    <footer><span>FULLTIME · YOUR SPORTS DESK</span><span>LIVE SPORTS DATA · SEARCHABLE PLAYER INDEX</span></footer>
   </div>
   <div class="backdrop" id="backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal" id="modal"></div></div>
   <script>
@@ -119,6 +143,25 @@
     const searchInput=document.getElementById("search"),results=document.getElementById("results"),profile=document.getElementById("profile"),home=document.getElementById("home-state"),hint=document.getElementById("hint");
     const filters=[["All","All sports"],["Soccer","⚽ Soccer"],["NFL","🏈 NFL"],["NBA","🏀 NBA"],["MLB","⚾ MLB"],["NHL","🏒 NHL"],["Tennis","🎾 Tennis"],["College","🎓 College"],["Golf","⛳ Golf"],["Cricket","🏏 Cricket"],["Rugby","🏉 Rugby"],["Motorsports","🏎️ Motorsports"],["MMA","🥊 MMA"]];
     let activeSport="All",currentMatches=[],selectedPlayer=null,searchTimer=null,searchController=null,searchSequence=0,pendingSearch=null;
+    const appScreens=["portal-home","player-screen","games-screen"];
+    function showAppScreen(screen,updateHistory=true){
+      const target=appScreens.includes(screen)?screen:"portal-home";
+      appScreens.forEach(id=>document.getElementById(id).classList.toggle("active",id===target));
+      document.querySelectorAll(".portal-nav-button").forEach(button=>button.classList.toggle("active",button.dataset.screen===target));
+      if(updateHistory){
+        const hash=target==="player-screen"?"#players":target==="games-screen"?"#games":"#home";
+        history.pushState({screen:target},"",hash);
+      }
+      if(target==="player-screen"&&!searchInput.value.trim())searchInput.focus({preventScroll:true});
+      window.scrollTo({top:0,behavior:"smooth"});
+    }
+    document.querySelectorAll("[data-open-screen],.portal-nav-button").forEach(button=>button.addEventListener("click",()=>{
+      showAppScreen(button.dataset.openScreen||button.dataset.screen);
+    }));
+    document.getElementById("home-nav").addEventListener("click",event=>{event.preventDefault();showAppScreen("portal-home")});
+    const initialHash=location.hash==="#players"?"player-screen":location.hash==="#games"?"games-screen":"portal-home";
+    showAppScreen(initialHash,false);
+    window.addEventListener("popstate",()=>showAppScreen(location.hash==="#players"?"player-screen":location.hash==="#games"?"games-screen":"portal-home",false));
     const searchCache=new Map(),transfermarktCache=new Map(),detailCache=new Map(),statsCache=new Map(),espnCache=new Map(),nbaCache=new Map(),teamCache=new Map(),wikipediaPopularityCache=new Map();
     const providerUrl="https://www.thesportsdb.com/api/v1/json/123";
     document.getElementById("index-count").textContent=`${players.length}+ LOCAL NAMES · LIVE LOOKUP`;
@@ -190,7 +233,7 @@
     function remotePlayer(player){
       const sportMap={"soccer":"Soccer","american football":"NFL","basketball":"NBA","baseball":"MLB","ice hockey":"NHL","tennis":"Tennis","golf":"Golf","cricket":"Cricket","rugby":"Rugby","rugby union":"Rugby","rugby league":"Rugby","mixed martial arts":"MMA","mma":"MMA"};
       const sport=sportMap[normalize(player.strSport)]||player.strSport||"Unknown sport";
-      return {id:player.idPlayer,idTeam:player.idTeam||"",idESPN:player.idESPN||"",name:player.strPlayer||"Unnamed player",sport,role:player.strPosition||"Not listed",icon:sportInfo[sport]?.icon||"🏟",team:player.strTeam||"",league:player.strLeague||"",nationality:player.strNationality||"",gender:player.strGender||"",dateBorn:player.dateBorn||"",status:player.strStatus||"",description:player.strDescriptionEN||"",thumb:player.strThumb||"",source:"TheSportsDB",rawSport:player.strSport||sport};
+      return {id:player.idPlayer,idTeam:player.idTeam||"",idESPN:player.idESPN||"",name:player.strPlayer||"Unnamed player",sport,role:player.strPosition||"Not listed",icon:sportInfo[sport]?.icon||"🏟",team:player.strTeam||"",league:player.strLeague||"",nationality:player.strNationality||"",gender:sport==="NFL"?"Male":player.strGender||"",dateBorn:player.dateBorn||"",status:player.strStatus||"",description:player.strDescriptionEN||"",thumb:player.strThumb||"",source:"TheSportsDB",rawSport:player.strSport||sport};
     }
     function mergeRemotePlayers(records){
       for(const record of records){
@@ -200,7 +243,7 @@
         player.team=known.club||player.team;
         player.league=known.league||player.league;
         player.nationality=known.nationality||player.nationality;
-        player.gender=known.gender||player.gender;
+        player.gender=player.sport==="NFL"?"Male":known.gender||player.gender;
         player.idESPN=known.espnId||player.idESPN;
         const isCollegeFootball=player.sport==="NFL"&&apiSportMatches(player.rawSport,"College",record);
         if(!apiSportMatches(player.rawSport,activeSport,record))continue;
@@ -236,7 +279,7 @@
       const teamMatch=description.match(/\bfor the (.+?) of the (?:National Football League|NFL|Major League Baseball|MLB|National Basketball Association|NBA|National Hockey League|NHL)\b/i);
       const player={
         name:record.title,sport,role,league,team:teamMatch?.[1]||"",nationality:/american\b/.test(summary)?"United States":"",
-        gender:"",description,icon:sportInfo[sport]?.icon||"🏟",source:"Wikipedia",
+        gender:sport==="NFL"?"Male":"",description,icon:sportInfo[sport]?.icon||"🏟",source:"Wikipedia",
         wikipediaViews:record.views, wikiUrl:record.url
       };
       const exactFocus=normalize(record.title)===cleanPlayerQuery(query);
@@ -269,6 +312,7 @@
           rawSport:"Soccer",
           role:player.position||known.position||"Not listed",
           team:player.club||known.club||"",
+          clubSince:player.clubSince||"",
           league:player.league||known.league||"",
           nationality:player.nationality||known.nationality||"",
           description:known.description||""
@@ -372,7 +416,7 @@
     function profileFacts(player){
       const known=profileOverrides[player.name]||{};
       if(player.source)return [
-        ["Sport",player.rawSport||player.sport],["Gender",player.gender||known.gender||"Not listed"],
+        ["Sport",player.rawSport||player.sport],["Gender",player.sport==="NFL"?"Male":player.gender||known.gender||"Not listed"],
         ["Position",player.role||known.position||"Not listed"],["Nationality",player.nationality||known.nationality||"Not returned by source"],
         [player.sport==="Soccer"?"Club":"Team",player.team||known.club||"Not returned by source"],
         ...(player.sport==="Soccer"?[["League",player.league||known.league||"Not returned by source"]]:[]),
@@ -600,6 +644,63 @@
       const group=(title,body)=>`<div class="career-group"><div class="career-title">${title}</div><div class="stats-grid">${body}</div></div>`;
       return `<section class="provider-stats"><div class="stats-heading"><strong>NBA regular-season stats</strong><span>ESPN · NBA</span></div><p class="coverage-note">Current season and career totals are NBA regular-season stats. TheSportsDB’s international-tournament stats are not mixed into these totals.</p>${current?group(`${season} SEASON · THROUGH LATEST UPDATE`,current):""}${group("NBA CAREER TOTALS",career)}<a class="source-link" href="https://www.espn.com/nba/player/stats/_/id/${encodeURIComponent(data.espnId)}" target="_blank" rel="noopener noreferrer">ESPN player stats ↗</a></section>`;
     }
+    function availabilityLeagueCode(league){
+      const value=normalize(league);
+      if(/premier league|england/.test(value))return "eng.1";
+      if(/la liga|laliga|spain/.test(value))return "esp.1";
+      if(/serie a|italy/.test(value))return "ita.1";
+      if(/bundesliga|germany/.test(value))return "ger.1";
+      if(/ligue 1|france/.test(value))return "fra.1";
+      return "";
+    }
+    function nextChanceDate(report){
+      const match=String(report.longComment||"").match(/next chance to play will come (Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday)/i);
+      if(!match)return "";
+      const weekday=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"].indexOf(match[1][0].toUpperCase()+match[1].slice(1).toLowerCase());
+      const date=new Date(),days=(weekday-date.getDay()+7)%7||7;
+      date.setDate(date.getDate()+days);
+      return `${String(date.getMonth()+1).padStart(2,"0")}/${String(date.getDate()).padStart(2,"0")}/${date.getFullYear()}`;
+    }
+    function availabilityMarkup(player){
+      const availability=player.availability;
+      if(!availability)return "";
+      if(availability.loading)return `<div class="availability-container"><div class="availability-card"><strong>AVAILABILITY · ESPN</strong><p>Checking the latest injury report…</p></div></div>`;
+      if(availability.error)return `<div class="availability-container"><div class="availability-card"><strong>AVAILABILITY DATA UNAVAILABLE</strong><p>${escapeHtml(availability.error)}</p></div></div>`;
+      if(!availability.report)return `<div class="availability-container"><div class="availability-card"><strong>AVAILABILITY · ESPN</strong><p>No active injury report was listed for this player in the selected league feed. This does not confirm that the player is injury-free. Transfermarkt club details show current registration, not a transfer timeline.</p></div></div>`;
+      const report=availability.report,reportDate=report.reportDate?new Date(report.reportDate).toLocaleDateString():"Not supplied";
+      const returnDate=nextChanceDate(report);
+      const link=player.sport==="NFL"?"https://www.espn.com/nfl/":"https://www.espn.com/nba/";
+      return `<div class="availability-container"><div class="availability-card"><strong>${escapeHtml(report.status||"Availability update")} · ${escapeHtml(report.team||"")}</strong><p>${escapeHtml(report.shortComment||report.longComment||"ESPN lists an availability report for this player.")}</p>${report.longComment&&report.longComment!==report.shortComment?`<p>${escapeHtml(report.longComment)}</p>`:""}<p>Report date: ${escapeHtml(reportDate)} · Approx. next chance to play: ${escapeHtml(returnDate||"Not specified by the report")}. This is not a confirmed return date.</p><p><a class="source-link" href="${link}" target="_blank" rel="noopener noreferrer">Source: ESPN ↗</a></p></div></div>`;
+    }
+    function transferNoticeMarkup(player){
+      if(player.source!=="Transfermarkt"||!player.clubSince||!player.team)return "";
+      const start=new Date(`${player.clubSince}T00:00:00Z`).toLocaleDateString();
+      return `<div class="availability-card"><strong>CURRENT CLUB · ${escapeHtml(player.team)}</strong><p>Transfermarkt lists this club assignment from ${escapeHtml(start)}. This is the recorded registration start, not a confirmed transfer announcement.</p></div>`;
+    }
+    async function fetchPlayerAvailability(player){
+      const sport=player.sport==="NFL"?"nfl":player.sport==="NBA"?"nba":player.sport==="Soccer"?"soccer":"";
+      if(!sport)return;
+      const league=sport==="soccer"?availabilityLeagueCode(player.league):"";
+      if(sport==="soccer"&&!league)return;
+      player.availability={loading:true};
+      const first=profile.querySelector(".availability-container");
+      if(first)first.outerHTML=availabilityMarkup(player);
+      else profile.querySelector(".facts")?.insertAdjacentHTML("afterend",availabilityMarkup(player));
+      try{
+        const params=new URLSearchParams({sport,name:player.name});
+        if(league)params.set("league",league);
+        const response=await fetch(`/api/player/availability?${params}`,{headers:{Accept:"application/json"}});
+        const payload=await response.json();
+        if(!response.ok)throw new Error(payload.error||`Availability returned HTTP ${response.status}`);
+        if(selectedPlayer!==player)return;
+        player.availability={report:payload.reports?.[0]||null};
+      }catch(error){
+        if(selectedPlayer!==player)return;
+        player.availability={error:`Availability could not be verified: ${error.message}`};
+      }
+      const current=profile.querySelector(".availability-container");
+      if(current)current.outerHTML=availabilityMarkup(player);
+    }
     let profileSequence=0;
     function renderProfile(player,stats=[],requestMessage="",espnStats=null,nbaStats=null){
       const isSoccer=player.sport==="Soccer";
@@ -620,6 +721,8 @@
       const nflMarkup=isNfl?(espnStats?nflStatMarkup(espnStats):`<section class="provider-stats"><div class="stats-heading"><strong>NFL current season &amp; career</strong><span>ESPN · ${requestMessage?"LOOKUP ISSUE":"LOADING"}</span></div><div class="stats-empty">${escapeHtml(requestMessage||"Loading current-season and career totals…")}</div>${requestMessage?'<p class="profile-note"><a class="source-link" href="https://www.espn.com/nfl/" target="_blank" rel="noopener noreferrer">Check ESPN NFL stats ↗</a></p>':''}</section>`):"";
       const nbaMarkup=isNba?(nbaStats?nbaStatMarkup(nbaStats):`<section class="provider-stats"><div class="stats-heading"><strong>NBA current season &amp; career totals</strong><span>ESPN · ${requestMessage?"LOOKUP ISSUE":"LOADING"}</span></div><div class="stats-empty">${escapeHtml(requestMessage||"Loading NBA regular-season points and career totals…")}</div>${requestMessage?'<p class="profile-note"><a class="source-link" href="https://www.espn.com/nba/" target="_blank" rel="noopener noreferrer">Check ESPN NBA stats ↗</a></p>':''}</section>`):"";
       profile.innerHTML=`<article class="profile-card"><div class="profile-top"><div><div class="eyebrow">${player.icon||"🏟"} ${escapeHtml(player.sport)} · PLAYER PROFILE${player.source?" · LIVE PROVIDER RECORD":""}</div><h2>${escapeHtml(player.name)}</h2><div class="profile-sub">${player.unverified?"Quick profile · identity and sport not verified":`${escapeHtml(profileOverrides[player.name]?.position||player.role)} · ${player.source==="Transfermarkt"?"Transfermarkt player record":player.source==="TheSportsDB"?"TheSportsDB record":player.source==="Wikipedia"?"Wikipedia player article":"Player details need a live data source"}`}</div></div><button class="close-profile" aria-label="Close player profile">×</button></div><div class="profile-body"><div class="facts">${profileFacts(player)}</div>${isSoccer?soccerMarketValueMarkup(player):""}${highlights}${nflMarkup}${nbaMarkup}${player.sportsDbRecord&&!isNfl&&!isNba?statMarkup:""}${!player.source&&!highlights&&!isSoccer?`<div class="value-row"><div><div class="value-label">PLAYER STATISTICS</div><div class="value-amount">Not connected</div></div><span class="source-link">Live source not connected</span></div>`:""}<p class="profile-note"><b>${player.sportsDbRecord?"PLAYER BIO · THESPORTSDB":"PLAYER DESCRIPTION"}</b> · ${escapeHtml(profileNote||"No player description was returned by the connected data source.")}</p>${player.dataWarning?`<div class="unverified">${escapeHtml(player.dataWarning)}</div>`:""}${player.sportsDbRecord?'<p class="profile-note">Provider records may be incomplete or out of date. <a class="source-link" href="https://www.thesportsdb.com/" target="_blank" rel="noopener noreferrer">Source: TheSportsDB ↗</a></p>':''}${player.source==="Transfermarkt"?`<p class="profile-note">Club, league, nationality, current value and career peak are linked to Transfermarkt. Values are the latest published snapshots, not live appraisals. <a class="source-link" href="${transfermarktPlayerUrl(player)}" target="_blank" rel="noopener noreferrer">Source: Transfermarkt ↗</a></p>`:""}${player.source==="Wikipedia"&&player.wikiUrl?`<p class="profile-note">Wikipedia page views are used to rank search results; profile summary is drawn from the linked article. <a class="source-link" href="${escapeHtml(player.wikiUrl)}" target="_blank" rel="noopener noreferrer">Source: Wikipedia ↗</a></p>`:""}${knownClubNote?'<div class="unverified">Club and league are last-listed details, not live-verified. Use the source link to check current information.</div>':''}${player.unverified?'<div class="unverified">This name wasn’t in the local index. This quick profile is only a search result—not confirmation of a real player identity. A connected player database is needed to verify it.</div>':''}</div></article>`;
+      const facts=profile.querySelector(".facts");
+      if(facts)facts.insertAdjacentHTML("afterend",availabilityMarkup(player)+transferNoticeMarkup(player));
       profile.querySelector(".close-profile").addEventListener("click",()=>{profile.classList.remove("show");searchInput.focus()});
     }
     async function fetchProfileData(player,sequence){
@@ -771,8 +874,10 @@
     }
     function showProfile(player){
       selectedPlayer=player;const sequence=++profileSequence;
+      if(player.sport==="NFL")player.gender="Male";
       profile.classList.add("show");results.classList.remove("show");
       renderProfile(player,[],player.source?"Loading player details and recorded stats…":"");
+      fetchPlayerAvailability(player);
       if(player.source==="Wikipedia")return;
       if(player.source)fetchProfileData(player,sequence);
       else if(player.sport==="Soccer"||activeSport==="All")fetchExactPlayer(player,sequence);
@@ -797,7 +902,8 @@
     document.addEventListener("keydown",event=>{if(event.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){event.preventDefault();searchInput.focus()}if(event.key==="Escape")closeModal()});
 
     const backdrop=document.getElementById("backdrop"),modal=document.getElementById("modal");
-    function closeModal(){backdrop.classList.remove("show")}
+    let modalGeneration=0;
+    function closeModal(){modalGeneration++;backdrop.classList.remove("show")}
     backdrop.addEventListener("click",event=>{if(event.target===backdrop)closeModal()});
     function formationSlots(formation){
       const [defenders,midfielders,forwards]=formation.split("-").map(Number);
@@ -835,18 +941,82 @@
         "trent alexander arnold":11,"theo hernandez":11,"william pacho":9,"gianluigi donnarumma":9,"mike maignan":9
       };
       const key=normalize(player.name);
-      if(starPrices[key])return starPrices[key];
+      if(starPrices[key])return Math.max(2,Math.ceil(starPrices[key]*0.8));
       const marketValue=String(player.marketValue||profileOverrides[player.name]?.marketValue||"").match(/€\s*([\d.]+)\s*(bn|b|m|k)?/i);
       if(marketValue){
         const suffix=marketValue[2]?.toLowerCase();
         const amount=Number(marketValue[1])*(suffix==="bn"||suffix==="b"?1000:suffix==="k"?0.001:1);
-        if(amount>0)return Math.max(starPrices[normalize(player.name)]||0,Math.min(20,Math.max(4,Math.round(4+Math.log2(amount+1)*1.8))));
+        if(amount>0)return Math.min(16,Math.max(3,Math.round(3+Math.log2(amount+1)*1.5)));
       }
       const role=draftRole(player.role);
-      return role==="Goalkeeper"?5:role==="Defender"?6:role==="Midfielder"?7:8;
+      return role==="Goalkeeper"?4:role==="Defender"?4:role==="Midfielder"?5:6;
+    }
+    function openNflPerryParty(){
+      const session=++modalGeneration;
+      const playerSlots=["QB","RB","RB","WR","WR","TE","FLEX"];
+      const fullSlots=[...playerSlots,"D/ST","K"];
+      let data=null,mode="standard",lineup=[],currentTeam="",loading=true,error="";
+      backdrop.classList.add("show");
+      function teamName(abbreviation){
+        return data?.teams.find(team=>team.abbreviation===abbreviation)?.name||abbreviation;
+      }
+      function randomTeam(){
+        const team=data.teams[Math.floor(Math.random()*data.teams.length)];
+        return team.abbreviation;
+      }
+      function slots(){
+        return mode==="full"?fullSlots:playerSlots;
+      }
+      function slotCandidates(slot){
+        const picked=new Set(lineup.map(player=>player.id));
+        return data.players.filter(player=>{
+          const eligible=slot==="FLEX"?["RB","WR","TE"].includes(player.position):player.position===slot;
+          return eligible&&player.teams.includes(currentTeam)&&!picked.has(player.id);
+        });
+      }
+      function draw(){
+        const activeSlot=slots()[lineup.length]||"";
+        const options=data&&activeSlot?slotCandidates(activeSlot):[];
+        const chosenPoints=lineup.reduce((total,player)=>total+player.points,0);
+        modal.innerHTML=`<div class="modal-head"><span class="eyebrow">NFL · ALL-TIME STANDARD FANTASY DRAFT</span><button class="modal-close" aria-label="Close">×</button></div><h2 id="modal-title">NFL Perry Party</h2><p class="modal-copy">A new random NFL team spins after every pick. Choose one player from that team’s franchise history; only that player’s best regular-season fantasy year counts.</p><div class="nfl-party-settings"><strong>CHOOSE YOUR ROSTER</strong><div class="nfl-party-mode"><button data-mode="standard" class="${mode==="standard"?"active":""}">STANDARD · 7 PICKS</button><button data-mode="full" class="${mode==="full"?"active":""}">FULL · 9 PICKS WITH D/ST + K</button></div><p class="draft-note">Standard scoring is non-PPR. Historical nflverse records currently cover 1999–2024. Retired players are included. Each player appears once, at their single best season in the available data.</p></div><div class="nfl-party-team"><span class="nfl-party-spinner">🎲 TEAM SPIN · ${data?`${lineup.length+1} OF ${slots().length}`:"LOADING"}</span><div class="nfl-spin-team">${loading?"Loading historical fantasy seasons…":error?escapeHtml(error):teamName(currentTeam)}</div><p class="draft-note">${!loading&&!error&&activeSlot?`Pick a ${activeSlot==="FLEX"?"RB, WR, or TE":activeSlot} who played for this franchise in their best season.`:!loading&&!error?"All roster spots filled. Your lineup is complete!":""}</p></div><div class="nfl-slot-grid">${slots().map((slot,index)=>`<span class="nfl-slot-chip${index===lineup.length?" active":""}">${index+1}. ${slot==="FLEX"?"FLEX · RB/WR/TE":slot}</span>`).join("")}</div><div class="nfl-party-picks">${lineup.map((player,index)=>`<div class="nfl-party-pick-row"><span><b>${index+1}. ${player.slot}</b> · ${escapeHtml(player.name)}<small>${escapeHtml(teamName(player.pickTeam))} · ${player.season} best season</small></span><b>${player.points.toFixed(1)} pts</b></div>`).join("")||'<p class="draft-status">Your picks appear here. Every pick gets a different random team spin.</p>'}</div><div class="nfl-party-summary">TOTAL STANDARD POINTS <b>${chosenPoints.toFixed(1)}</b>${activeSlot?` · NEXT <b>${activeSlot}</b>`:" · COMPLETE"}</div>${activeSlot?`<div class="nfl-party-options">${options.map(player=>`<button class="nfl-player-option" data-nfl-player="${escapeHtml(player.id)}"><span><strong>${escapeHtml(player.name)}</strong><small>${player.season} best season · ${escapeHtml(player.position)}${player.teams.length>1?" · played for this team that season":""}</small></span><span class="nfl-player-points">${player.points.toFixed(1)} pts</span></button>`).join("")||`<div class="empty-result">No eligible ${activeSlot} season was found for ${escapeHtml(teamName(currentTeam))}. Spin another team to continue.</div>`}</div>`:""}<div class="modal-foot"><span class="progress">${lineup.length} / ${slots().length} PICKS</span>${activeSlot?`<button class="formation" id="reroll-team" ${loading||error?"disabled":""}>SPIN ANOTHER TEAM</button>`:`<button class="primary" id="reset-perry">PLAY AGAIN</button>`}</div><div class="game-hub-note">Fantasy points source: <a href="https://github.com/nflverse/nflverse-data" target="_blank" rel="noopener noreferrer">nflverse player, kicker, team, and schedule data ↗</a>. D/ST uses standard points allowed and defensive scoring; kicker points use made field goals by distance plus extra points.</div>`;
+        modal.querySelector(".modal-close").addEventListener("click",closeModal);
+        modal.querySelectorAll("[data-mode]").forEach(button=>button.addEventListener("click",()=>{
+          if(mode===button.dataset.mode)return;
+          mode=button.dataset.mode;lineup=[];currentTeam=data?randomTeam():"";draw();
+        }));
+        modal.querySelectorAll("[data-nfl-player]").forEach(button=>button.addEventListener("click",()=>{
+          const player=data.players.find(item=>item.id===button.dataset.nflPlayer);
+          if(!player||!activeSlot||!player.teams.includes(currentTeam))return;
+          lineup.push({...player,slot:activeSlot,pickTeam:currentTeam});
+          if(lineup.length<slots().length)currentTeam=randomTeam();
+          draw();
+        }));
+        modal.querySelector("#reroll-team")?.addEventListener("click",()=>{currentTeam=randomTeam();draw()});
+        modal.querySelector("#reset-perry")?.addEventListener("click",()=>{lineup=[];currentTeam=randomTeam();draw()});
+      }
+      draw();
+      fetch("/api/nfl/perry-party",{headers:{Accept:"application/json"}}).then(async response=>{
+        const payload=await response.json();
+        if(!response.ok)throw new Error(payload.error||`NFL fantasy data returned HTTP ${response.status}`);
+        if(session!==modalGeneration)return;
+        data=payload;
+        currentTeam=randomTeam();
+        loading=false;
+        draw();
+      }).catch(failure=>{
+        if(session!==modalGeneration)return;
+        loading=false;error=`Historical NFL player data could not be loaded: ${failure.message}`;draw();
+      });
     }
     function openDraft(){
-      let formation="4-3-3",lineup=[],slotIndex=0,competition="weekend",query="",candidates=[],status="Search a player for the position shown.",errorMessage="",searchTimer=null,requestSequence=0;
+      const session=++modalGeneration;
+      let formation="4-3-3",lineup=[],slotIndex=0,competition="weekend",query="",candidates=[],status="Search a player for the position shown.",errorMessage="",searchTimer=null,requestSequence=0,fantasyPlayers=new Map(),fantasyError="";
+      fetch("/api/fantasy/premier-league",{headers:{Accept:"application/json"}}).then(async response=>{
+        const payload=await response.json();
+        if(!response.ok)throw new Error(payload.error||`Fantasy points returned HTTP ${response.status}`);
+        fantasyPlayers=new Map((payload.players||[]).map(player=>[canonicalPlayerName(player.name),player]));
+        if(session===modalGeneration)draw();
+      }).catch(error=>{fantasyError=error.message;if(session===modalGeneration)draw()});
       backdrop.classList.add("show");
       async function searchCandidates(searchTerm,sequence){
         const term=searchTerm.trim();
@@ -897,7 +1067,7 @@
       function applyDollarDraftLabels(total,remaining){
         const summary=modal.querySelector(".draft-summary");
         summary.innerHTML=`<span>TEAM COST <b>$${total} / $100</b></span><span>REMAINING <b>$${remaining}</b></span>`;
-        modal.querySelector(".modal-copy").textContent="Pick a formation, search players by name, and keep all 11 picks within a $100 budget. Fantasy prices rise for top stars; they are not Transfermarkt valuations.";
+        modal.querySelector(".modal-copy").textContent="Pick a formation, search players by name, and keep all 11 picks within a $100 budget. Player prices have been reduced; they are not Transfermarkt valuations.";
         modal.querySelectorAll(".slot.filled").forEach(slot=>{
           slot.innerHTML=slot.innerHTML.replace(/(\d+) cr/g,"$$$1");
         });
@@ -917,7 +1087,7 @@
         const picked=new Set(lineup.map(item=>normalize(item.name)));
         const available=candidates.filter(player=>!picked.has(normalize(player.name)));
         const layout=[{line:"FWD",count:Number(formation.split("-")[2])},{line:"MID",count:Number(formation.split("-")[1])},{line:"DEF",count:Number(formation.split("-")[0])},{line:"GK",count:1}];
-        modal.innerHTML=`<div class="modal-head"><span class="eyebrow">SOCCER ONLY · SEARCHABLE FANTASY XI</span><button class="modal-close" aria-label="Close">×</button></div><h2 id="modal-title">Build your XI on a budget</h2><p class="modal-copy">Pick a formation, search players by name, and keep all 11 picks within 100 credits. Fantasy prices rise for top stars; they are not Transfermarkt valuations.</p><div class="formation-row"><button class="formation${competition==="weekend"?" active":""}" data-competition="weekend">WEEKEND · TOP FIVE LEAGUES</button><button class="formation${competition==="weekday"?" active":""}" data-competition="weekday">WEEKDAY · EUROPEAN LEAGUES</button></div><p class="draft-note">${competition==="weekend"?"Eligible clubs: Premier League, La Liga, Bundesliga, Serie A, and Ligue 1.":"Searches include European domestic leagues; UEFA Champions / Europa / Conference League squad registration cannot be verified."}</p><div class="formation-row">${["4-3-3","4-4-2","3-5-2"].map(value=>`<button class="formation${formation===value?" active":""}" data-formation="${value}">${value}</button>`).join("")}</div><div class="pitch">${layout.map(row=>`<div class="pitch-line">${Array.from({length:row.count},(_,i)=>{const entry=lineup.filter(x=>x.line===row.line)[i];return `<button class="slot${entry?" filled":""}" data-slot="${row.line}-${i}"><small>${row.line}${row.count>1?` ${i+1}`:""}</small>${entry?`${escapeHtml(entry.name)}<br>${entry.price} cr`:"Choose"}</button>`}).join("")}</div>`).join("")}</div><div class="draft-summary"><span>TEAM COST <b>${total} / 100 CREDITS</b></span><span>REMAINING <b>${remaining} CREDITS</b></span></div><div class="pool-title">${current?`SEARCH ${roleForLine[current.line].toUpperCase()}`:"XI COMPLETE"}</div>${current?`<input class="draft-search" type="search" value="${escapeHtml(query)}" placeholder="Search any player name…" aria-label="Search players for your XI"><div class="draft-status">${escapeHtml(status)}${errorMessage?` ${escapeHtml(errorMessage)}`:""}</div><div class="pool">${available.map((player,index)=>{const price=draftPlayerPrice(player),disabled=price>remaining,details=[player.team,player.league,player.marketValue&&`TM ${player.marketValue}`].filter(Boolean).join(" · ");return `<button class="pick" data-player-index="${index}" ${disabled?"disabled":""}><span>${escapeHtml(player.name)}<small>${escapeHtml(details)}</small></span><small>${price} cr</small></button>`}).join("")||`<div class="empty-result">${escapeHtml(status)}</div>`}</div>`:"<div class=\"draft-status\">Your formation is filled. Remove a player by clicking their pitch slot.</div>"}<div class="modal-foot"><span class="progress">${lineup.length} / 11 POSITIONS FILLED${current?` · NEXT: ${current.line}`:""}</span><button class="primary" id="finish-draft" ${lineup.length!==11||total>100?"disabled":""}>LOCK IN XI ↗</button></div><div class="announcement" id="draft-result"></div>`;
+        modal.innerHTML=`<div class="modal-head"><span class="eyebrow">SOCCER ONLY · SEARCHABLE FANTASY XI</span><button class="modal-close" aria-label="Close">×</button></div><h2 id="modal-title">Build your XI on a budget</h2><p class="modal-copy">Pick a formation, search players by name, and keep all 11 picks within a $100 budget. Prices are lower than before; they are not Transfermarkt valuations.</p><div class="formation-row"><button class="formation${competition==="weekend"?" active":""}" data-competition="weekend">WEEKEND · TOP FIVE LEAGUES</button><button class="formation${competition==="weekday"?" active":""}" data-competition="weekday">WEEKDAY · EUROPEAN LEAGUES</button></div><p class="draft-note">${competition==="weekend"?"Eligible clubs: Premier League, La Liga, Bundesliga, Serie A, and Ligue 1. Official season fantasy points are currently connected for Premier League via Fantasy Premier League; points for other leagues are not guessed.":"Searches include European domestic leagues; UEFA Champions / Europa / Conference League squad registration cannot be verified."}</p><div class="formation-row">${["4-3-3","4-4-2","3-5-2"].map(value=>`<button class="formation${formation===value?" active":""}" data-formation="${value}">${value}</button>`).join("")}</div><div class="pitch">${layout.map(row=>`<div class="pitch-line">${Array.from({length:row.count},(_,i)=>{const entry=lineup.filter(x=>x.line===row.line)[i];return `<button class="slot${entry?" filled":""}" data-slot="${row.line}-${i}"><small>${row.line}${row.count>1?` ${i+1}`:""}</small>${entry?`${escapeHtml(entry.name)}<br>${entry.price} cr`:"Choose"}</button>`}).join("")}</div>`).join("")}</div><div class="draft-summary"><span>TEAM COST <b>${total} / 100 CREDITS</b></span><span>REMAINING <b>${remaining} CREDITS</b></span></div><div class="pool-title">${current?`SEARCH ${roleForLine[current.line].toUpperCase()}`:"XI COMPLETE"}</div>${current?`<input class="draft-search" type="search" value="${escapeHtml(query)}" placeholder="Search any player name…" aria-label="Search players for your XI"><div class="draft-status">${escapeHtml(status)}${fantasyError?` Fantasy points feed unavailable: ${escapeHtml(fantasyError)}`:""}${errorMessage?` ${escapeHtml(errorMessage)}`:""}</div><div class="pool">${available.map((player,index)=>{const price=draftPlayerPrice(player),disabled=price>remaining,officialPoints=fantasyPlayers.get(canonicalPlayerName(player.name)),details=[player.team,player.league,player.marketValue&&`TM ${player.marketValue}`,officialPoints&&`FPL ${officialPoints.points} pts`].filter(Boolean).join(" · ");return `<button class="pick" data-player-index="${index}" ${disabled?"disabled":""}><span>${escapeHtml(player.name)}<small>${escapeHtml(details)}</small></span><small>$${price}</small></button>`}).join("")||`<div class="empty-result">${escapeHtml(status)}</div>`}</div>`:"<div class=\"draft-status\">Your formation is filled. Remove a player by clicking their pitch slot.</div>"}<div class="modal-foot"><span class="progress">${lineup.length} / 11 POSITIONS FILLED${current?` · NEXT: ${current.line}`:""}</span><button class="primary" id="finish-draft" ${lineup.length!==11||total>100?"disabled":""}>LOCK IN XI ↗</button></div><div class="announcement" id="draft-result"></div>`;
         applyDollarDraftLabels(total,remaining);
         modal.querySelector(".modal-close").addEventListener("click",closeModal);
         modal.querySelectorAll("[data-competition]").forEach(button=>button.addEventListener("click",()=>{competition=button.dataset.competition;query="";candidates=[];status="Search a player for the position shown.";requestSequence++;draw()}));
@@ -951,7 +1121,76 @@
       }
       draw();
     }
+    function openNbaDaily(){
+      const session=++modalGeneration;
+      const localDate=new Date(),date=`${localDate.getFullYear()}${String(localDate.getMonth()+1).padStart(2,"0")}${String(localDate.getDate()).padStart(2,"0")}`;
+      const storageKey=`fulltime-nba-82-0-${date}`;
+      let allPlayers=[],query="",resultsData=null,loading=true,errorMessage="",saveError="";
+      let picks=[];
+      try{
+        const saved=JSON.parse(localStorage.getItem(storageKey)||"[]");
+        if(Array.isArray(saved))picks=saved.filter(player=>player&&typeof player.id==="string").slice(0,5);
+      }catch(error){errorMessage=`Saved lineup could not be read: ${error.message}`}
+      backdrop.classList.add("show");
+      function scoreDetails(){
+        if(picks.length!==5)return "Choose five players to complete today's lineup.";
+        if(!resultsData)return "Score is waiting for today's games to finish.";
+        const completed=resultsData.games>0&&resultsData.pending===0;
+        const score=picks.reduce((total,player)=>total+(Number.isFinite(resultsData.scores?.[player.id])?resultsData.scores[player.id]:completed?0:0),0);
+        if(!completed)return `${score} points recorded so far · ${resultsData.pending} game${resultsData.pending===1?"":"s"} still in progress or upcoming.`;
+        return `${score} / 90 POINTS · ${score>=90?"TARGET HIT!":"TARGET MISSED"} · Today's games are final.`;
+      }
+      function draw(){
+        const chosen=new Set(picks.map(player=>player.id));
+        const filtered=allPlayers.filter(player=>normalize(player.name).includes(normalize(query))||normalize(player.team).includes(normalize(query))).slice(0,80);
+        const canPick=allPlayers.length>0&&allPlayers.every(player=>!/(IN_PROGRESS|FINAL|POST)/i.test(player.gameStatus))&&picks.length<5;
+        const completed=resultsData?.games>0&&resultsData?.pending===0;
+        const score=resultsData?picks.reduce((total,player)=>total+(Number.isFinite(resultsData.scores?.[player.id])?resultsData.scores[player.id]:completed?0:0),0):0;
+        modal.innerHTML=`<div class="modal-head"><span class="eyebrow">NBA · ONE LINEUP PER DAY</span><button class="modal-close" aria-label="Close">×</button></div><h2 id="modal-title">82-0: Daily 90-point challenge</h2><p class="modal-copy">Draft five NBA players with games on today's slate. Your lineup saves on this device for ${localDate.toLocaleDateString()}; once five are picked, it locks for the day. Real points come from ESPN box scores.</p><div class="draft-summary"><span>DAILY TARGET <b>90 POINTS</b></span><span>LINEUP <b>${picks.length} / 5</b></span></div><div class="nba-daily-controls"><input class="nba-search" type="search" value="${escapeHtml(query)}" placeholder="Search today's NBA players or teams…" aria-label="Search today's NBA players"><button class="formation nba-refresh">CHECK SCORES</button></div><div class="draft-status">${loading?"Loading today's NBA slate…":errorMessage||`${allPlayers.length} eligible players from ${resultsData?.games||0} scheduled game${resultsData?.games===1?"":"s"}.`}${saveError?` ${escapeHtml(saveError)}`:""}</div><div class="nba-lineup">${picks.map((player,index)=>{const points=resultsData?.scores?.[player.id];const mark=Number.isFinite(points)?`${points} PTS`:completed?"0 PTS":"PENDING";return `<div class="nba-lineup-row"><span><b>${escapeHtml(player.name)}</b> · ${escapeHtml(player.team)} <small>${escapeHtml(player.position||"")}</small></span><span><b>${mark}</b>${picks.length<5&&!/(IN_PROGRESS|FINAL|POST)/i.test(player.gameStatus)?` <button class="nba-remove" data-remove="${index}" aria-label="Remove ${escapeHtml(player.name)}">×</button>`:""}</span></div>`}).join("")||'<div class="draft-status">Your five picks will appear here.</div>'}</div><div class="nba-score">${escapeHtml(scoreDetails())}</div><div class="nba-pool">${filtered.map(player=>`<button class="nba-choice" data-nba-player="${escapeHtml(player.id)}" ${chosen.has(player.id)||!canPick?"disabled":""}><span>${escapeHtml(player.name)}<small>${escapeHtml([player.team,player.position,player.game].filter(Boolean).join(" · "))}</small></span><b>${chosen.has(player.id)?"PICKED":"+"}</b></button>`).join("")||`<div class="empty-result">${loading?"":errorMessage||"No matching players are scheduled today."}</div>`}</div><div class="draft-status">${canPick?"Pick five different players before any game tips off.":"Your lineup is locked for today, or today's games have started."} Scores are actual points, not fantasy-point projections.</div>`;
+        modal.querySelector(".modal-close").addEventListener("click",closeModal);
+        modal.querySelector(".nba-search").addEventListener("input",event=>{query=event.target.value;draw()});
+        modal.querySelector(".nba-refresh").addEventListener("click",refreshResults);
+        modal.querySelectorAll("[data-remove]").forEach(button=>button.addEventListener("click",()=>{
+          picks.splice(Number(button.dataset.remove),1);
+          try{localStorage.setItem(storageKey,JSON.stringify(picks));saveError=""}
+          catch(error){saveError=`Could not save your lineup: ${error.message}`}
+          draw();
+        }));
+        modal.querySelectorAll("[data-nba-player]").forEach(button=>button.addEventListener("click",()=>{
+          const player=allPlayers.find(item=>item.id===button.dataset.nbaPlayer);
+          if(!player||!canPick)return;
+          picks.push(player);
+          try{localStorage.setItem(storageKey,JSON.stringify(picks));saveError=""}
+          catch(error){saveError=`Could not save your lineup: ${error.message}`}
+          draw();
+        }));
+      }
+      async function refreshResults(){
+        try{
+          const response=await fetch(`/api/nba/results?date=${date}`,{headers:{Accept:"application/json"}});
+          const payload=await response.json();
+          if(!response.ok)throw new Error(payload.error||`Score lookup returned HTTP ${response.status}`);
+          if(session!==modalGeneration)return;
+          resultsData=payload;errorMessage="";draw();
+        }catch(error){if(session!==modalGeneration)return;errorMessage=`Score lookup failed: ${error.message}`;draw()}
+      }
+      draw();
+      (async()=>{
+        try{
+          const [slateResponse]=await Promise.all([fetch(`/api/nba/slate?date=${date}`,{headers:{Accept:"application/json"}})]);
+          const slate=await slateResponse.json();
+          if(!slateResponse.ok)throw new Error(slate.error||`NBA slate returned HTTP ${slateResponse.status}`);
+          if(session!==modalGeneration)return;
+          allPlayers=Array.isArray(slate.players)?slate.players:[];
+          loading=false;errorMessage="";
+        }catch(error){if(session!==modalGeneration)return;loading=false;errorMessage=`NBA slate unavailable: ${error.message}`}
+        draw();
+        refreshResults();
+      })();
+    }
     document.getElementById("draft-open").addEventListener("click",openDraft);
+    document.getElementById("nfl-party-open").addEventListener("click",openNflPerryParty);
+    document.getElementById("nba-open").addEventListener("click",openNbaDaily);
     document.getElementById("award-open").addEventListener("click",()=>{
       backdrop.classList.add("show");
       modal.innerHTML=`<div class="modal-head"><span class="eyebrow">FAN-MADE · JUST FOR FUN</span><button class="modal-close" aria-label="Close">×</button></div><h2 id="modal-title">Call the trophy moment</h2><p class="modal-copy">Write your own celebratory announcement. This does not represent an official award or result.</p><div class="award-form"><label>PLAYER NAME<input id="award-player" value="${escapeHtml(selectedPlayer?.name||"Josh Allen")}"></label><label>AWARD<input id="award-title" value="Most Valuable Player"></label></div><button class="primary" id="announce" style="margin-top:14px">MAKE THE ANNOUNCEMENT ↗</button><div class="announcement" id="award-result"></div>`;
