@@ -7,7 +7,9 @@ const ROOT = __dirname;
 const TRANSFERMARKT = "https://www.transfermarkt.us";
 const TM_API = "https://tmapi.transfermarkt.technology";
 const cache = new Map();
+const wikipediaCache = new Map();
 const CACHE_TTL = 15 * 60 * 1000;
+const WIKIPEDIA_CACHE_TTL = 24 * 60 * 60 * 1000;
 
 function decodeHtml(value = "") {
   return value
@@ -108,6 +110,84 @@ function marketValueAmount(value = "") {
 
 function normalizeName(value = "") {
   return String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+async function fetchWikipediaPopularity(name, includeSummary = false) {
+  const cacheKey = normalizeName(name);
+  const cached = wikipediaCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now() && (!includeSummary || cached.value.extract)) return cached.value;
+
+  const searchUrl = new URL("https://en.wikipedia.org/w/api.php");
+  searchUrl.search = new URLSearchParams({
+    action: "query",
+    list: "search",
+    srsearch: name,
+    srnamespace: "0",
+    srlimit: "5",
+    format: "json"
+  });
+  const searchResponse = await fetch(searchUrl, {
+    headers: { Accept: "application/json", "User-Agent": "FULLTIMEPlayerSearch/1.0 (player popularity ranking)" },
+    signal: AbortSignal.timeout(10000)
+  });
+  if (!searchResponse.ok) throw new Error(`Wikipedia search returned HTTP ${searchResponse.status}`);
+  const searchPayload = await searchResponse.json();
+  const pages = searchPayload.query?.search || [];
+  const exact = pages.find(page => normalizeName(page.title) === cacheKey);
+  const qualified = pages.filter(page => {
+    const title = normalizeName(page.title);
+    return title.startsWith(`${cacheKey} `) || (!cacheKey.includes(" ") && title.endsWith(` ${cacheKey}`));
+  });
+  const candidates = cacheKey.includes(" ") ? (exact ? [exact] : qualified) : (qualified.length ? qualified : exact ? [exact] : []);
+  if (!candidates.length) {
+    const value = { views: 0, title: "" };
+    wikipediaCache.set(cacheKey, { value, expiresAt: Date.now() + WIKIPEDIA_CACHE_TTL });
+    return value;
+  }
+
+  const end = new Date();
+  end.setUTCDate(end.getUTCDate() - 1);
+  const start = new Date(end);
+  start.setUTCDate(start.getUTCDate() - 29);
+  const startDate = `${start.getUTCFullYear()}-${String(start.getUTCMonth() + 1).padStart(2, "0")}-${String(start.getUTCDate()).padStart(2, "0")}`;
+  const endDate = `${end.getUTCFullYear()}-${String(end.getUTCMonth() + 1).padStart(2, "0")}-${String(end.getUTCDate()).padStart(2, "0")}`;
+  const pageViewsUrl = new URL("https://en.wikipedia.org/w/api.php");
+  pageViewsUrl.search = new URLSearchParams({
+    action: "query",
+    prop: "pageviews",
+    titles: candidates.map(page => page.title).join("|"),
+    format: "json"
+  });
+  const viewsResponse = await fetch(pageViewsUrl, {
+    headers: { Accept: "application/json", "User-Agent": "FULLTIMEPlayerSearch/1.0 (player popularity ranking)" },
+    signal: AbortSignal.timeout(10000)
+  });
+  if (!viewsResponse.ok) throw new Error(`Wikipedia page-view data returned HTTP ${viewsResponse.status}`);
+  const viewsPayload = await viewsResponse.json();
+  const pageData = Object.values(viewsPayload.query?.pages || {});
+  const viewsFor = page => {
+    const data = pageData.find(item => normalizeName(item.title) === normalizeName(page.title));
+    return Object.entries(data?.pageviews || {}).reduce((total, [date, count]) =>
+      date >= startDate && date <= endDate ? total + (Number(count) || 0) : total, 0);
+  };
+  candidates.sort((left, right) => viewsFor(right) - viewsFor(left));
+  const page = candidates[0];
+  const value = {
+    views: viewsFor(page),
+    title: page.title
+  };
+  if (includeSummary) {
+    const summaryResponse = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(page.title)}`, {
+      headers: { Accept: "application/json", "User-Agent": "FULLTIMEPlayerSearch/1.0 (player popularity ranking)" },
+      signal: AbortSignal.timeout(10000)
+    });
+    if (!summaryResponse.ok) throw new Error(`Wikipedia profile returned HTTP ${summaryResponse.status}`);
+    const summary = await summaryResponse.json();
+    value.extract = summary.extract || "";
+    value.url = summary.content_urls?.desktop?.page || "";
+  }
+  wikipediaCache.set(cacheKey, { value, expiresAt: Date.now() + WIKIPEDIA_CACHE_TTL });
+  return value;
 }
 
 async function enrichPlayer(result) {
@@ -225,6 +305,44 @@ const server = http.createServer(async (request, response) => {
       sendJson(response, 200, { players: await searchPlayers(query) });
     } catch (error) {
       sendJson(response, 502, { error: `Transfermarkt search failed: ${error.message}` });
+    }
+    return;
+  }
+
+  if (requestUrl.pathname === "/api/wikipedia/popularity") {
+    let names;
+    try {
+      names = JSON.parse(requestUrl.searchParams.get("names") || "[]");
+    } catch {
+      sendJson(response, 400, { error: "Player names must be a JSON array." });
+      return;
+    }
+    const focusName = (requestUrl.searchParams.get("focus") || "").trim();
+    if (!Array.isArray(names) || names.length > 30 || names.some(name => typeof name !== "string" || name.trim().length < 2 || name.length > 80) || (focusName && (focusName.length < 2 || focusName.length > 80))) {
+      sendJson(response, 400, { error: "Provide up to 30 player names, each between 2 and 80 characters." });
+      return;
+    }
+    try {
+      const uniqueNames = [...new Map([...(focusName ? [focusName] : []), ...names].map(name => [normalizeName(name), name.trim()])).values()];
+      const results = [];
+      for (let index = 0; index < uniqueNames.length; index += 8) {
+        const batch = await Promise.all(uniqueNames.slice(index, index + 8).map(async name => {
+          try {
+            return { key: normalizeName(name), value: await fetchWikipediaPopularity(name, normalizeName(name) === normalizeName(focusName)) };
+          } catch (error) {
+            return { key: normalizeName(name), value: null, error: `${name}: ${error.message}` };
+          }
+        }));
+        results.push(...batch);
+      }
+      const focus = results.find(result => result.key === normalizeName(focusName))?.value || null;
+      sendJson(response, 200, {
+        players: Object.fromEntries(results.map(result => [result.key, result.value])),
+        focus,
+        errors: results.filter(result => result.error).map(result => result.error)
+      });
+    } catch (error) {
+      sendJson(response, 502, { error: `Wikipedia popularity lookup failed: ${error.message}` });
     }
     return;
   }
