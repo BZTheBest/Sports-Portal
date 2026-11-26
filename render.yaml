@@ -1,6 +1,7 @@
 services:
   - type: web
     name: brian-sports-portal
-    runtime: static
-    buildCommand: echo "Static site ready"
-    staticPublishPath: .
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health

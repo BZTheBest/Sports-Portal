@@ -80,14 +80,15 @@
       Motorsports:`Lewis Hamilton,Max Verstappen,Fernando Alonso,Charles Leclerc,Lando Norris,Oscar Piastri,George Russell,Carlos Sainz,Michael Schumacher,Ayrton Senna,Alain Prost,Niki Lauda,Sebastian Vettel,Kimi Räikkönen,Daniel Ricciardo,Sergio Pérez,Valtteri Bottas,Jenson Button,Nigel Mansell,Jackie Stewart,Juan Manuel Fangio,Dale Earnhardt,Jeff Gordon,Jimmie Johnson,Scott Dixon,Alex Palou,Kyle Larson,Valentino Rossi,Marc Márquez`,
       MMA:`Conor McGregor,Jon Jones,Georges St-Pierre,Anderson Silva,Khabib Nurmagomedov,Islam Makhachev,Alex Pereira,Ilia Topuria,Alexander Volkanovski,Max Holloway,Charles Oliveira,Leon Edwards,Israel Adesanya,Daniel Cormier,Francis Ngannou,Stipe Miocic,Demetrious Johnson,José Aldo,Chuck Liddell,Ronda Rousey,Valentina Shevchenko,Amanda Nunes,Weili Zhang,Rose Namajunas,Joanna Jędrzejczyk,Sean O'Malley,Tom Aspinall,Merab Dvalishvili,Justin Gaethje,Dustin Poirier`
     };
-    const aliases={"R9":"Ronaldo Nazário","Fenômeno":"Ronaldo Nazário","CR7":"Cristiano Ronaldo","KDB":"Kevin De Bruyne","The GOAT":"Michael Jordan"};
+    const aliases={"R9":"Ronaldo Nazário","Fenômeno":"Ronaldo Nazário","CR7":"Cristiano Ronaldo","KDB":"Kevin De Bruyne","The GOAT":"Michael Jordan","Jens Peter Hauge":"Jens Petter Hauge"};
     const profileOverrides={
       "Michael Olise":{gender:"Male",nationality:"France",position:"Winger",club:"Bayern Munich · last listed",league:"Bundesliga · last listed"},
-      "Jens Peter Hauge":{gender:"Male",nationality:"Norway",position:"Winger / attacking midfielder"},
-      "Jens Petter Hauge":{gender:"Male",nationality:"Norway",position:"Winger / attacking midfielder"},
+      "Jens Peter Hauge":{gender:"Male",nationality:"Norway",position:"Left winger",club:"Bodø/Glimt",league:"Eliteserien",marketValue:"€12.00M",marketValueDate:"May 28, 2026",peakMarketValue:"€12.00M",peakMarketValueDate:"May 28, 2026",tmId:"422355",description:"Norwegian left winger who rose to prominence at Bodø/Glimt, moved to AC Milan in 2020, and later returned to Bodø/Glimt."},
+      "Jens Petter Hauge":{gender:"Male",nationality:"Norway",position:"Left winger",club:"Bodø/Glimt",league:"Eliteserien",marketValue:"€12.00M",marketValueDate:"May 28, 2026",peakMarketValue:"€12.00M",peakMarketValueDate:"May 28, 2026",tmId:"422355",description:"Norwegian left winger who rose to prominence at Bodø/Glimt, moved to AC Milan in 2020, and later returned to Bodø/Glimt."},
       "Ronaldo Nazário":{nationality:"Brazil",position:"Striker"},
-      "Kevin De Bruyne":{gender:"Male",nationality:"Belgium",position:"Attacking midfielder",club:"Napoli",league:"Serie A",marketValue:"€8m",marketValueDate:"May 29, 2026",peakMarketValue:"€150m",midfieldRank:18},
+      "Kevin De Bruyne":{gender:"Male",nationality:"Belgium",position:"Attacking midfielder",club:"Napoli",league:"Serie A",marketValue:"€8m",marketValueDate:"May 29, 2026",midfieldRank:18},
       "Rafael Nadal":{gender:"Male",nationality:"Spain",position:"Tennis singles",utrPeak:null,atpPeak:"World No. 1"},
+      "Thibaut Courtois":{gender:"Male",nationality:"Belgium",position:"Goalkeeper",club:"Real Madrid",league:"La Liga",marketValue:"€15.00M",marketValueDate:"June 5, 2026",peakMarketValue:"€75.00M",peakMarketValueDate:"October 8, 2020",tmId:"108390",description:"Belgian goalkeeper for Real Madrid, widely regarded as one of the leading goalkeepers of his generation and a two-time Champions League winner."},
       "Patrick Mahomes":{gender:"Male",nationality:"United States",position:"Quarterback",espnId:"3139477"},
       "Joe Montana":{position:"Quarterback",club:"San Francisco 49ers · historic",league:"NFL"},
       "Josh Allen":{position:"Quarterback"},
@@ -117,8 +118,8 @@
 
     const searchInput=document.getElementById("search"),results=document.getElementById("results"),profile=document.getElementById("profile"),home=document.getElementById("home-state"),hint=document.getElementById("hint");
     const filters=[["All","All sports"],["Soccer","⚽ Soccer"],["NFL","🏈 NFL"],["NBA","🏀 NBA"],["MLB","⚾ MLB"],["NHL","🏒 NHL"],["Tennis","🎾 Tennis"],["College","🎓 College"],["Golf","⛳ Golf"],["Cricket","🏏 Cricket"],["Rugby","🏉 Rugby"],["Motorsports","🏎️ Motorsports"],["MMA","🥊 MMA"]];
-    let activeSport="All",currentMatches=[],selectedPlayer=null,searchTimer=null,searchController=null,searchSequence=0;
-    const searchCache=new Map(),detailCache=new Map(),statsCache=new Map(),espnCache=new Map(),teamCache=new Map();
+    let activeSport="All",currentMatches=[],selectedPlayer=null,searchTimer=null,searchController=null,searchSequence=0,pendingSearch=null;
+    const searchCache=new Map(),transfermarktCache=new Map(),detailCache=new Map(),statsCache=new Map(),espnCache=new Map(),teamCache=new Map();
     const providerUrl="https://www.thesportsdb.com/api/v1/json/123";
     document.getElementById("index-count").textContent=`${players.length}+ LOCAL NAMES · LIVE LOOKUP`;
     const filterBox=document.getElementById("sport-filters");
@@ -128,7 +129,36 @@
       activeSport=button.dataset.sport;filterBox.querySelectorAll(".filter").forEach(item=>item.classList.toggle("active",item===button));
       if(searchInput.value.trim())searchPlayers(searchInput.value);
     });
-    const normalize=value=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+    const normalize=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+    const searchNoise=new Set(["best","biggest","greatest","top","player","players","stats","statistics","value","market","price","rank","ranking","overall","career","current","club","team","rc","card","soccer","football"]);
+    function cleanPlayerQuery(value){
+      return normalize(value).split(" ").filter(token=>token&&!searchNoise.has(token)).join(" ");
+    }
+    function canonicalPlayerName(name){
+      const alias=Object.entries(aliases).find(([key])=>normalize(key)===normalize(name))?.[1];
+      return normalize(alias||name);
+    }
+    function playerNameMatches(name,query){
+      const queryTokens=cleanPlayerQuery(query).split(" ").filter(Boolean);
+      const nameTokens=normalize(name).split(" ");
+      return queryTokens.length>0&&queryTokens.every(queryToken=>nameTokens.some(nameToken=>nameToken.startsWith(queryToken)||queryToken.startsWith(nameToken)));
+    }
+    function playerSearchScore(player,query){
+      const cleaned=cleanPlayerQuery(query),normalizedName=normalize(player.name);
+      if(normalizedName===cleaned)return 10000;
+      const parts=normalizedName.split(" "),tokens=cleaned.split(" ").filter(Boolean);
+      let score=0;
+      if(tokens.length&&parts.at(-1)===tokens.at(-1))score+=1600;
+      if(tokens.length&&parts[0]===tokens[0])score+=1300;
+      if(player.source==="Transfermarkt")score+=500;
+      if(player.source==="TheSportsDB")score+=350;
+      const marketValue=String(player.marketValue||"").match(/€\s*([\d.]+)\s*(bn|b|m|k)?/i);
+      if(marketValue){
+        const amount=Number(marketValue[1])*(["bn","b"].includes(marketValue[2]?.toLowerCase())?1000:marketValue[2]?.toLowerCase()==="k"?0.001:1);
+        score+=Math.min(300,Math.round(amount));
+      }
+      return score;
+    }
     function filteredPool(){return activeSport==="All"?players:players.filter(player=>player.sport===activeSport)}
     function apiSportMatches(sport,filter,player){
       if(filter==="All")return true;
@@ -159,7 +189,7 @@
         const isCollegeFootball=player.sport==="NFL"&&apiSportMatches(player.rawSport,"College",record);
         if(!apiSportMatches(player.rawSport,activeSport,record))continue;
         if(isCollegeFootball){player.sport="College";player.icon=sportInfo.College.icon}
-        const duplicate=currentMatches.findIndex(existing=>normalize(existing.name)===normalize(player.name)&&normalize(existing.sport)===normalize(player.sport));
+        const duplicate=currentMatches.findIndex(existing=>canonicalPlayerName(existing.name)===canonicalPlayerName(player.name)&&normalize(existing.sport)===normalize(player.sport));
         if(duplicate>=0){
           if(!currentMatches[duplicate].source)currentMatches[duplicate]=player;
           continue;
@@ -167,53 +197,90 @@
         currentMatches.push(player);
       }
     }
-    async function fetchSearch(query,sequence,filter){
-      const searchTerm=aliases[query.trim()]||query.trim();
-      const cacheKey=normalize(searchTerm);
-      if(searchCache.has(cacheKey)){
-        const cached=searchCache.get(cacheKey);
-        if(sequence===searchSequence&&filter===activeSport){mergeRemotePlayers(cached);renderResults(searchInput.value)}
-        return;
-      }
-      if(searchController)searchController.abort();
-      searchController=new AbortController();
-      try{
-        const url=`${providerUrl}/searchplayers.php?p=${encodeURIComponent(searchTerm)}`;
-        const response=await fetch(url,{signal:searchController.signal,headers:{Accept:"application/json"}});
-        if(!response.ok)throw new Error(`TheSportsDB returned HTTP ${response.status}`);
-        const payload=await response.json();
-        const records=Array.isArray(payload.player)?payload.player:[];
-        searchCache.set(cacheKey,records);
-        if(sequence!==searchSequence||filter!==activeSport||normalize(searchInput.value)!==normalize(query))return;
-        mergeRemotePlayers(records);
-        renderResults(query,records.length?"TheSportsDB checked":"No provider match");
-      }catch(error){
-        if(error.name==="AbortError")return;
-        if(sequence!==searchSequence)return;
-        renderResults(query,"Live lookup unavailable");
-        hint.textContent=`LIVE LOOKUP ERROR · ${error.message} · LOCAL RESULTS STILL AVAILABLE`;
+    function mergeTransfermarktPlayers(records){
+      for(const player of records){
+        const duplicate=currentMatches.findIndex(existing=>canonicalPlayerName(existing.name)===canonicalPlayerName(player.name)&&existing.sport==="Soccer");
+        const known=profileOverrides[player.name]||{};
+        const normalizedPlayer={
+          ...player,
+          marketValue:player.marketValue||known.marketValue||"",
+          marketValueDate:player.marketValueDate||known.marketValueDate||"",
+          peakMarketValue:player.peakMarketValue||known.peakMarketValue||"",
+          peakMarketValueDate:player.peakMarketValueDate||known.peakMarketValueDate||"",
+          idTM:player.id||known.tmId||"",
+          marketValueSource:"TRANSFERMARKT · "+(player.marketValueDate||known.marketValueDate||"LAST PUBLISHED"),
+          dataWarning:player.enrichmentError?`Some club or league details could not be loaded from Transfermarkt: ${player.enrichmentError}`:"",
+          icon:sportInfo.Soccer.icon,
+          sport:"Soccer",
+          rawSport:"Soccer",
+          role:player.position||known.position||"Not listed",
+          team:player.club||known.club||"",
+          league:player.league||known.league||"",
+          nationality:player.nationality||known.nationality||"",
+          description:known.description||""
+        };
+        if(duplicate>=0){
+          const existing=currentMatches[duplicate];
+          currentMatches[duplicate]={...existing,...normalizedPlayer,id:existing.id||"",idTeam:existing.idTeam||player.clubId||"",source:"Transfermarkt"};
+          continue;
+        }
+        currentMatches.push({...normalizedPlayer,id:"",idTeam:player.clubId||"",source:"Transfermarkt"});
       }
     }
+    async function fetchSearch(query,sequence,filter){
+      const searchTerm=aliases[query.trim()]||cleanPlayerQuery(query);
+      const cacheKey=normalize(searchTerm);
+      if(!searchTerm)return;
+      if(searchController)searchController.abort();
+      searchController=new AbortController();
+      const requests=[];
+      if(filter==="All"||filter==="Soccer"){
+        const tmCached=transfermarktCache.get(cacheKey);
+        requests.push((tmCached?Promise.resolve(tmCached):fetch(`/api/transfermarkt/search?q=${encodeURIComponent(searchTerm)}`,{signal:searchController.signal,headers:{Accept:"application/json"}}).then(async response=>{
+          if(!response.ok){const payload=await response.json().catch(()=>({}));throw new Error(payload.error||`Transfermarkt returned HTTP ${response.status}`)}
+          const payload=await response.json();const records=Array.isArray(payload.players)?payload.players:[];
+          transfermarktCache.set(cacheKey,records);return records;
+        })).then(records=>{if(sequence===searchSequence&&filter===activeSport)mergeTransfermarktPlayers(records);return {source:"Transfermarkt",count:records.length}}).catch(error=>({source:"Transfermarkt",error})));
+      }
+      {
+        const sportsDbCached=searchCache.get(cacheKey);
+        requests.push((sportsDbCached?Promise.resolve(sportsDbCached):fetch(`${providerUrl}/searchplayers.php?p=${encodeURIComponent(searchTerm)}`,{signal:searchController.signal,headers:{Accept:"application/json"}}).then(async response=>{
+          if(!response.ok)throw new Error(`TheSportsDB returned HTTP ${response.status}`);
+          const payload=await response.json();const records=Array.isArray(payload.player)?payload.player:[];
+          searchCache.set(cacheKey,records);return records;
+        })).then(records=>{if(sequence===searchSequence&&filter===activeSport)mergeRemotePlayers(records);return {source:"TheSportsDB",count:records.length}}).catch(error=>({source:"TheSportsDB",error})));
+      }
+      const outcomes=await Promise.all(requests);
+      if(sequence!==searchSequence||filter!==activeSport)return;
+      const error=outcomes.find(item=>item.error);
+      const count=outcomes.reduce((sum,item)=>sum+item.count,0);
+      renderResults(query,error?(count?"Some live sources unavailable":"Live lookup unavailable"):count?"Live data checked":"No live match");
+      if(error&&count===0)hint.textContent=`LIVE LOOKUP UNAVAILABLE · ${error.error.message} · LOCAL RESULTS STILL AVAILABLE`;
+    }
     function searchPlayers(query){
-      const q=normalize(query);
+      const q=cleanPlayerQuery(query);
       if(!q){currentMatches=[];home.style.display="block";results.classList.remove("show");profile.classList.remove("show");hint.textContent="SOCCER · NFL · NBA · MLB · NHL · TENNIS · COLLEGE · GOLF · CRICKET · RUGBY · MOTORSPORTS · MMA";return}
       home.style.display="none";profile.classList.remove("show");
       const alias=aliases[query.trim()]||aliases[query.trim().toUpperCase()];
-      const target=normalize(alias||query);
-      currentMatches=filteredPool().filter(player=>normalize(player.name).includes(target)||normalize(player.name).split(" ").some(part=>target.length>2&&part.startsWith(target))).slice(0,30);
+      const target=cleanPlayerQuery(alias||query);
+      currentMatches=filteredPool().filter(player=>playerNameMatches(player.name,target)).sort((a,b)=>playerSearchScore(b,target)-playerSearchScore(a,target)).slice(0,30);
       const sequence=++searchSequence;
       if(searchController)searchController.abort();
       clearTimeout(searchTimer);
-      renderResults(query,target.length>=3?"Checking live player directory…":"");
-      if(target.length>=3)searchTimer=setTimeout(()=>fetchSearch(query,sequence,activeSport),550);
+      renderResults(query,target.split(" ").some(token=>token.length>=2)?"Checking Transfermarkt and player directory…":"");
+      if(target.split(" ").some(token=>token.length>=2))searchTimer=setTimeout(()=>{
+        searchTimer=null;
+        pendingSearch=fetchSearch(query,sequence,activeSport).finally(()=>{if(sequence===searchSequence)pendingSearch=null});
+      },450);
     }
     function renderResults(query,sourceStatus=""){
       results.classList.add("show");
-      const exact=currentMatches.find(player=>normalize(player.name)===normalize(aliases[query.trim()]||query));
+      currentMatches.sort((a,b)=>playerSearchScore(b,query)-playerSearchScore(a,query));
+      const exact=currentMatches.find(player=>playerNameMatches(player.name,aliases[query.trim()]||query));
       const count=currentMatches.length;
       let html=`<div class="results-head"><strong>${count?`${count}${count===30?"+":""} matching player${count===1?"":"s"}`:"No indexed match"}</strong><span>${escapeHtml(sourceStatus|| (activeSport==="All"?"ALL SPORTS":activeSport.toUpperCase()))}</span></div><div class="result-list">`;
       if(count){
-        html+=currentMatches.map((player,index)=>`<button class="result" data-index="${index}"><span class="result-icon">${player.icon}</span><span class="result-copy"><b>${escapeHtml(player.name)}</b><small>${escapeHtml(player.sport)} · ${escapeHtml(player.role)} · ${player.source?"live profile":"local index"}</small></span><span class="result-arrow">↗</span></button>`).join("");
+        html+=currentMatches.map((player,index)=>`<button class="result" data-index="${index}"><span class="result-icon">${player.icon}</span><span class="result-copy"><b>${escapeHtml(player.name)}</b><small>${escapeHtml(player.sport)} · ${escapeHtml(player.role)}${player.team?` · ${escapeHtml(player.team)}`:""}${player.marketValue?` · ${escapeHtml(player.marketValue)}`:""} · ${player.source||"local index"}</small></span><span class="result-arrow">↗</span></button>`).join("");
       }else{
         html+=`<div class="empty-result">No indexed match for “${escapeHtml(query)}”. You can still open a quick profile; we’ll leave unverified details blank rather than guess. Try another spelling or switch to All sports.</div><button class="result" id="custom-result"><span class="result-icon">＋</span><span class="result-copy"><b>Open a quick profile for “${escapeHtml(query)}”</b><small>Unverified search · no invented team, stats, or value</small></span><span class="result-arrow">↗</span></button>`;
       }
@@ -244,7 +311,8 @@
       const known=profileOverrides[player.name]||{};
       if(player.name==="Kevin De Bruyne"){
         const transfermarkt="https://www.transfermarkt.us/kevin-de-bruyne/marktwertverlauf/spieler/88755";
-        return `<section class="profile-highlights"><div class="highlight-head"><strong>Career context</strong><span>HISTORY + EDITORIAL</span></div><div class="highlight-grid"><div class="highlight-item"><small>TRANSFERMARKT PEAK VALUE</small><b>${known.peakMarketValue}</b><p>Historical peak shown on the linked Transfermarkt profile.</p><a class="source-link" href="${transfermarkt}" target="_blank" rel="noopener noreferrer">Check value history ↗</a></div><div class="highlight-item"><small>FULLTIME ALL-TIME MIDFIELDER RANK</small><b>#${known.midfieldRank}</b><p>Our editorial ranking, not an official placement.</p></div></div></section>`;
+        const peak=player.peakMarketValue||known.peakMarketValue||"Not verified";
+        return `<section class="profile-highlights"><div class="highlight-head"><strong>Career context</strong><span>HISTORY + EDITORIAL</span></div><div class="highlight-grid"><div class="highlight-item"><small>TRANSFERMARKT PEAK VALUE</small><b>${escapeHtml(peak)}</b><p>${peak==="Not verified"?"No historical peak was returned by the connected source.":"Historical peak shown on the linked Transfermarkt profile."}</p><a class="source-link" href="${transfermarkt}" target="_blank" rel="noopener noreferrer">Check value history ↗</a></div><div class="highlight-item"><small>FULLTIME ALL-TIME MIDFIELDER RANK</small><b>#${known.midfieldRank}</b><p>Our editorial ranking, not an official placement.</p></div></div></section>`;
       }
       if(player.name==="Rafael Nadal"){
         return `<section class="profile-highlights"><div class="highlight-head"><strong>Career context</strong><span>CAREER HIGHS</span></div><div class="highlight-grid"><div class="highlight-item"><small>ATP SINGLES CAREER-HIGH</small><b>${known.atpPeak}</b><p>ATP ranking is separate from UTR rating.</p><a class="source-link" href="https://www.atptour.com/en/players/rafael-nadal/n409/overview" target="_blank" rel="noopener noreferrer">Official ATP profile ↗</a></div><div class="highlight-item"><small>PEAK UTR RATING</small><b>Not verified</b><p>No public historical peak rating was returned by the connected data source; we won't guess it.</p><a class="source-link" href="https://app.utrsports.net/search" target="_blank" rel="noopener noreferrer">Check UTR ↗</a></div></div></section>`;
@@ -302,19 +370,26 @@
     }
     function formatTotal(value){return new Intl.NumberFormat(undefined,{maximumFractionDigits:2}).format(value)}
     function transfermarktPlayerUrl(player){
-      const knownIds={"Kevin De Bruyne":"88755"};
-      return knownIds[player.name]?`https://www.transfermarkt.us/${player.name.toLowerCase().replaceAll(" ","-")}/marktwertverlauf/spieler/${knownIds[player.name]}`:`https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query=${encodeURIComponent(player.name)}`;
+      const knownIds={"Kevin De Bruyne":"88755","Jens Peter Hauge":"422355","Jens Petter Hauge":"422355","Thibaut Courtois":"108390"};
+      if(player.transfermarktUrl)return player.transfermarktUrl;
+      if(player.tmId||player.idTM)return `https://www.transfermarkt.us/player/${encodeURIComponent(player.tmId||player.idTM)}/marktwertverlauf`;
+      const id=knownIds[player.name]||player.tmId||player.idTM;
+      return id?`https://www.transfermarkt.us/${player.name.toLowerCase().replaceAll(" ","-")}/marktwertverlauf/spieler/${id}`:`https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query=${encodeURIComponent(player.name)}`;
     }
     function soccerMarketValueMarkup(player){
       if(player.sport!=="Soccer")return "";
       const known=profileOverrides[player.name]||{};
-      const value=known.marketValue||player.marketValue;
-      const date=known.marketValueDate||player.marketValueDate;
-      return `<div class="value-row"><div><div class="value-label">TRANSFERMARKT MARKET VALUE</div><div class="value-amount">${escapeHtml(value||"No verified value in connected feed")}</div>${date?`<div class="profile-note">Last published ${escapeHtml(date)}; check Transfermarkt for the latest valuation.</div>`:'<div class="profile-note">The free player feed does not include valuations. We leave unverified values blank.</div>'}</div><a class="source-link" href="${transfermarktPlayerUrl(player)}" target="_blank" rel="noopener noreferrer">Check Transfermarkt ↗</a></div>`;
+      const value=player.marketValue||known.marketValue;
+      const date=player.marketValueDate||known.marketValueDate;
+      const peak=player.peakMarketValue||known.peakMarketValue;
+      const peakDate=player.peakMarketValueDate||known.peakMarketValueDate;
+      return `<section class="profile-highlights"><div class="highlight-head"><strong>Transfermarkt market value</strong><span>${player.marketValueSource||"SOURCE LINK"}</span></div><div class="highlight-grid"><div class="highlight-item"><small>CURRENT / LAST PUBLISHED</small><b>${escapeHtml(value||"Not returned by Transfermarkt")}</b><p>${date?`Last updated ${escapeHtml(date)}.`:"Open Transfermarkt for the latest published value."}</p></div><div class="highlight-item"><small>CAREER PEAK</small><b>${escapeHtml(peak||"Not returned by Transfermarkt")}</b><p>${peakDate?`Highest listed value on ${escapeHtml(peakDate)}.`:"Peak history unavailable from source."}</p></div></div><a class="source-link" href="${transfermarktPlayerUrl(player)}" target="_blank" rel="noopener noreferrer">Open Transfermarkt value history ↗</a></section>`;
     }
     function playerDescription(player){
       if(player.description)return player.description;
       if(player.sport==="Soccer"){
+        const known=profileOverrides[player.name];
+        if(known?.description)return known.description;
         const details=[player.role&&player.role!=="Not listed"?`listed as ${player.role}`:"",player.team?`associated with ${player.team}`:"",player.nationality?`listed with ${player.nationality} nationality`:""].filter(Boolean);
         return details.length?`The connected player record describes ${player.name} as ${details.join(", ")}. No additional biography was supplied by the source.`:"The connected source has no biography for this player yet. Club, nationality, and role are shown only when the source provides them.";
       }
@@ -400,97 +475,146 @@
       );
       const careerGroups=summarizeCareerStats(stats,player);
       const seasonRows=stats.slice().sort((a,b)=>String(b.strSeason||"").localeCompare(String(a.strSeason||""))).map(item=>`<div class="season-row"><small>${escapeHtml(item.strSeason||"Season not listed")} · ${escapeHtml(item.strLeague||player.rawSport||"")}</small><span>${escapeHtml(item.strStatistic||"Statistic")}: ${escapeHtml(item.strValue||"—")}</span></div>`).join("");
-      const statMarkup=player.source?`<section class="provider-stats"><div class="stats-heading"><strong>Career totals from available data</strong><span>THESPORTSDB · ${stats.length?"PROVIDER STATS":"NO SEASON DATA"}</span></div>${stats.length?`${careerGroups.length?`<p class="coverage-note">Totals are summed from numeric season records returned by the provider. Leagues stay separate; missing seasons and competitions are not included, so these may not represent full career totals.</p>${careerGroups.map(group=>`<div class="career-group"><div class="career-title">${escapeHtml(group.league.toUpperCase())} · ${group.seasons.size} SEASON${group.seasons.size===1?"":"S"}</div><div class="stats-grid">${group.metrics.map(metric=>`<div class="stat-item"><small>CAREER TOTAL · ${metric.seasons.size} SEASON${metric.seasons.size===1?"":"S"} REPORTED</small><b>${escapeHtml(metric.label)}: ${formatTotal(metric.total)}</b></div>`).join("")}</div></div>`).join("")}`:"<div class=\"stats-empty\">The provider returned records, but no numeric career-counting stats for this sport. See the season data below.</div>"}<details class="season-details"><summary>View all ${stats.length} provider season records</summary><div class="season-list">${seasonRows}</div></details>`:`<div class="stats-empty">${escapeHtml(requestMessage||"No player statistics were returned for this record. The provider may not have season data for this player.")}</div>`}</section>`:"";
+      const statMarkup=player.sportsDbRecord?`<section class="provider-stats"><div class="stats-heading"><strong>Career totals from available data</strong><span>THESPORTSDB · ${stats.length?"PROVIDER STATS":"NO SEASON DATA"}</span></div>${stats.length?`${careerGroups.length?`<p class="coverage-note">Totals are summed from numeric season records returned by the provider. Leagues stay separate; missing seasons and competitions are not included, so these may not represent full career totals.</p>${careerGroups.map(group=>`<div class="career-group"><div class="career-title">${escapeHtml(group.league.toUpperCase())} · ${group.seasons.size} SEASON${group.seasons.size===1?"":"S"}</div><div class="stats-grid">${group.metrics.map(metric=>`<div class="stat-item"><small>CAREER TOTAL · ${metric.seasons.size} SEASON${metric.seasons.size===1?"":"S"} REPORTED</small><b>${escapeHtml(metric.label)}: ${formatTotal(metric.total)}</b></div>`).join("")}</div></div>`).join("")}`:"<div class=\"stats-empty\">The provider returned records, but no numeric career-counting stats for this sport. See the season data below.</div>"}<details class="season-details"><summary>View all ${stats.length} provider season records</summary><div class="season-list">${seasonRows}</div></details>`:`<div class="stats-empty">${escapeHtml(requestMessage||"No player statistics were returned for this record. The provider may not have season data for this player.")}</div>`}</section>`:"";
       const highlights=profileHighlights(player);
       const isNfl=normalize(player.rawSport||player.sport)==="american football";
       const nflMarkup=isNfl?(espnStats?nflStatMarkup(espnStats):`<section class="provider-stats"><div class="stats-heading"><strong>NFL current season &amp; career</strong><span>ESPN · ${requestMessage?"LOOKUP ISSUE":"LOADING"}</span></div><div class="stats-empty">${escapeHtml(requestMessage||"Loading current-season and career totals…")}</div>${requestMessage?'<p class="profile-note"><a class="source-link" href="https://www.espn.com/nfl/" target="_blank" rel="noopener noreferrer">Check ESPN NFL stats ↗</a></p>':''}</section>`):"";
-      profile.innerHTML=`<article class="profile-card"><div class="profile-top"><div><div class="eyebrow">${player.icon||"🏟"} ${escapeHtml(player.sport)} · PLAYER PROFILE${player.source?" · LIVE PROVIDER RECORD":""}</div><h2>${escapeHtml(player.name)}</h2><div class="profile-sub">${player.unverified?"Quick profile · identity and sport not verified":`${escapeHtml(profileOverrides[player.name]?.position||player.role)} · ${player.source?"TheSportsDB record":"Player details need a live data source"}`}</div></div><button class="close-profile" aria-label="Close player profile">×</button></div><div class="profile-body"><div class="facts">${profileFacts(player)}</div>${isSoccer?soccerMarketValueMarkup(player):""}${highlights}${nflMarkup}${player.source&&!isNfl?statMarkup:""}${!player.source&&!highlights&&!isSoccer?`<div class="value-row"><div><div class="value-label">PLAYER STATISTICS</div><div class="value-amount">Not connected</div></div><span class="source-link">Live source not connected</span></div>`:""}<p class="profile-note"><b>${player.source?"PLAYER BIO · THESPORTSDB":"PLAYER NOTE"}</b> · ${escapeHtml(profileNote||"No player description was returned by the connected data source.")}</p>${player.dataWarning?`<div class="unverified">${escapeHtml(player.dataWarning)}</div>`:""}${player.source?'<p class="profile-note">Provider records may be incomplete or out of date. <a class="source-link" href="https://www.thesportsdb.com/" target="_blank" rel="noopener noreferrer">Source: TheSportsDB ↗</a></p>':''}${knownClubNote?'<div class="unverified">Club and league are last-listed details, not live-verified. Use the source link to check current information.</div>':''}${player.unverified?'<div class="unverified">This name wasn’t in the local index. This quick profile is only a search result—not confirmation of a real player identity. A connected player database is needed to verify it.</div>':''}</div></article>`;
+      profile.innerHTML=`<article class="profile-card"><div class="profile-top"><div><div class="eyebrow">${player.icon||"🏟"} ${escapeHtml(player.sport)} · PLAYER PROFILE${player.source?" · LIVE PROVIDER RECORD":""}</div><h2>${escapeHtml(player.name)}</h2><div class="profile-sub">${player.unverified?"Quick profile · identity and sport not verified":`${escapeHtml(profileOverrides[player.name]?.position||player.role)} · ${player.source==="Transfermarkt"?"Transfermarkt player record":player.source==="TheSportsDB"?"TheSportsDB record":"Player details need a live data source"}`}</div></div><button class="close-profile" aria-label="Close player profile">×</button></div><div class="profile-body"><div class="facts">${profileFacts(player)}</div>${isSoccer?soccerMarketValueMarkup(player):""}${highlights}${nflMarkup}${player.sportsDbRecord&&!isNfl?statMarkup:""}${!player.source&&!highlights&&!isSoccer?`<div class="value-row"><div><div class="value-label">PLAYER STATISTICS</div><div class="value-amount">Not connected</div></div><span class="source-link">Live source not connected</span></div>`:""}<p class="profile-note"><b>${player.sportsDbRecord?"PLAYER BIO · THESPORTSDB":"PLAYER DESCRIPTION"}</b> · ${escapeHtml(profileNote||"No player description was returned by the connected data source.")}</p>${player.dataWarning?`<div class="unverified">${escapeHtml(player.dataWarning)}</div>`:""}${player.sportsDbRecord?'<p class="profile-note">Provider records may be incomplete or out of date. <a class="source-link" href="https://www.thesportsdb.com/" target="_blank" rel="noopener noreferrer">Source: TheSportsDB ↗</a></p>':''}${player.source==="Transfermarkt"?`<p class="profile-note">Club, league, nationality, current value and career peak are linked to Transfermarkt. Values are the latest published snapshots, not live appraisals. <a class="source-link" href="${transfermarktPlayerUrl(player)}" target="_blank" rel="noopener noreferrer">Source: Transfermarkt ↗</a></p>`:""}${knownClubNote?'<div class="unverified">Club and league are last-listed details, not live-verified. Use the source link to check current information.</div>':''}${player.unverified?'<div class="unverified">This name wasn’t in the local index. This quick profile is only a search result—not confirmation of a real player identity. A connected player database is needed to verify it.</div>':''}</div></article>`;
       profile.querySelector(".close-profile").addEventListener("click",()=>{profile.classList.remove("show");searchInput.focus()});
     }
     async function fetchProfileData(player,sequence){
-      const id=player.id;
-      try{
-        let detail=detailCache.get(id),stats=statsCache.get(id);
-        const requests=[];
-        if(!detail)requests.push(fetch(`${providerUrl}/lookupplayer.php?id=${encodeURIComponent(id)}`).then(async response=>{if(!response.ok)throw new Error(`Player details returned HTTP ${response.status}`);return response.json()}));
-        else requests.push(Promise.resolve(null));
-        if(!stats)requests.push(fetch(`${providerUrl}/lookupplayerstats.php?id=${encodeURIComponent(id)}`).then(async response=>{if(!response.ok)throw new Error(`Player stats returned HTTP ${response.status}`);return response.json()}));
-        else requests.push(Promise.resolve(null));
-        const [detailPayload,statsPayload]=await Promise.all(requests);
-        detail=detail||detailPayload?.players?.[0]||null;
-        stats=stats||statsPayload?.playerstats||[];
-        if(detail)detailCache.set(id,detail);
-        statsCache.set(id,stats);
-        if(detail){
-          player.role=detail.strPosition||player.role;
-          player.idTeam=detail.idTeam||player.idTeam;
-          player.team=detail.strTeam||player.team;
-          player.league=detail.strLeague||player.league;
-          player.nationality=detail.strNationality||player.nationality;
-          player.gender=detail.strGender||player.gender;
-          player.dateBorn=detail.dateBorn||player.dateBorn;
-          player.status=detail.strStatus||player.status;
-          player.description=detail.strDescriptionEN||player.description;
-          player.thumb=detail.strThumb||player.thumb;
-          player.rawSport=detail.strSport||player.rawSport;
-          player.idESPN=detail.idESPN||player.idESPN;
-        }
-        if(player.sport==="Soccer"&&player.idTeam){
-          try{
-            if(!teamCache.has(player.idTeam)){
-              const response=await fetch(`${providerUrl}/lookupteam.php?id=${encodeURIComponent(player.idTeam)}`,{headers:{Accept:"application/json"}});
-              if(!response.ok)throw new Error(`Club details returned HTTP ${response.status}`);
-              const payload=await response.json();
-              teamCache.set(player.idTeam,payload.teams?.[0]||null);
-            }
-            const team=teamCache.get(player.idTeam);
-            if(team){
-              const league=team.strLeague||"";
-              if(/world cup|euro championship|nations league|international|fifa world/i.test(league)){
-                player.nationalTeam=team.strTeam||player.team;
-                player.team="";
-                player.league="";
-                player.dataWarning="The connected player record points to a national team; a current club was not returned.";
-              }else{
-                player.team=team.strTeam||player.team;
-                player.league=league||player.league;
-              }
-            }else{
-              player.dataWarning="The provider did not verify a club record; the listed team may be a national side.";
-            }
-          }catch(error){
-            player.dataWarning=`Club details could not be verified: ${error.message}`;
+      let id=player.id,detail=null,stats=[],requestMessage="";
+      if(!id){
+        try{
+          const cacheKey=normalize(player.name);
+          let records=searchCache.get(cacheKey);
+          if(!records){
+            const response=await fetch(`${providerUrl}/searchplayers.php?p=${encodeURIComponent(cleanPlayerQuery(player.name))}`,{headers:{Accept:"application/json"}});
+            if(!response.ok)throw new Error(`TheSportsDB returned HTTP ${response.status}`);
+            const payload=await response.json();
+            records=Array.isArray(payload.player)?payload.player:[];
+            searchCache.set(cacheKey,records);
           }
+          const record=records.find(item=>canonicalPlayerName(item.strPlayer)===canonicalPlayerName(player.name))||records.find(item=>playerNameMatches(item.strPlayer,player.name));
+          if(record){player.id=record.idPlayer;player.idTeam=player.idTeam||record.idTeam;player.sportsDbRecord=true;id=player.id}
+        }catch(error){
+          player.dataWarning=`The biography/stat source could not be checked: ${error.message}`;
         }
-        stats.sort((a,b)=>String(b.strSeason||"").localeCompare(String(a.strSeason||"")));
-        const override=profileOverrides[player.name]||{};
-        player.idESPN=player.idESPN||override.espnId;
-        let espnStats=null,espnError="";
-        if(normalize(player.rawSport)==="american football"&&player.idESPN){
-          try{
-            espnStats=espnCache.get(player.idESPN)||await fetchEspnNflStats(player.idESPN);
-            espnCache.set(player.idESPN,espnStats);
-          }catch(error){espnError=`ESPN season totals could not be loaded: ${error.message}`}
-        }
-        if(sequence===profileSequence&&selectedPlayer===player)renderProfile(player,stats,espnError,espnStats);
-      }catch(error){
-        if(sequence!==profileSequence||selectedPlayer!==player)return;
-        renderProfile(player,[],`Live player data could not be loaded: ${error.message}`);
       }
+      if(id){
+        try{
+          const detailRequest=detailCache.has(id)?Promise.resolve(detailCache.get(id)):fetch(`${providerUrl}/lookupplayer.php?id=${encodeURIComponent(id)}`,{headers:{Accept:"application/json"}}).then(async response=>{if(!response.ok)throw new Error(`Player details returned HTTP ${response.status}`);return response.json()});
+          const statsRequest=statsCache.has(id)?Promise.resolve(statsCache.get(id)):fetch(`${providerUrl}/lookupplayerstats.php?id=${encodeURIComponent(id)}`,{headers:{Accept:"application/json"}}).then(async response=>{if(!response.ok)throw new Error(`Player stats returned HTTP ${response.status}`);return response.json()});
+          const [detailResult,statsResult]=await Promise.allSettled([detailRequest,statsRequest]);
+          if(detailResult.status==="fulfilled"){
+            const payload=detailResult.value;
+            detail=payload?.players?.[0]||payload||null;
+            if(detail)detailCache.set(id,detail);
+          }else{
+            player.dataWarning=`Player details could not be loaded: ${detailResult.reason.message}`;
+          }
+          if(statsResult.status==="fulfilled"){
+            const payload=statsResult.value;
+            stats=Array.isArray(payload)?payload:(payload?.playerstats||[]);
+            statsCache.set(id,stats);
+          }else if(!player.dataWarning){
+            player.dataWarning=`Player statistics could not be loaded: ${statsResult.reason.message}`;
+          }
+        }catch(error){
+          requestMessage=`Live player data could not be loaded: ${error.message}`;
+        }
+      }
+      if(detail){
+        player.role=detail.strPosition||player.role;
+        player.idTeam=detail.idTeam||player.idTeam;
+        player.team=player.team||detail.strTeam||"";
+        player.league=player.league||detail.strLeague||"";
+        player.nationality=player.nationality||detail.strNationality||"";
+        player.gender=player.gender||detail.strGender||"";
+        player.dateBorn=detail.dateBorn||player.dateBorn;
+        player.status=detail.strStatus||player.status;
+        player.description=detail.strDescriptionEN||player.description;
+        player.thumb=detail.strThumb||player.thumb;
+        player.rawSport=detail.strSport||player.rawSport;
+        player.idESPN=detail.idESPN||player.idESPN;
+      }
+      if(player.sportsDbRecord&&player.sport==="Soccer"&&player.idTeam){
+        try{
+          if(!teamCache.has(player.idTeam)){
+            const response=await fetch(`${providerUrl}/lookupteam.php?id=${encodeURIComponent(player.idTeam)}`,{headers:{Accept:"application/json"}});
+            if(!response.ok)throw new Error(`Club details returned HTTP ${response.status}`);
+            const payload=await response.json();
+            teamCache.set(player.idTeam,payload.teams?.[0]||null);
+          }
+          const team=teamCache.get(player.idTeam);
+          if(team&&!player.team){
+            const league=team.strLeague||"";
+            if(/world cup|euro championship|nations league|international|fifa world/i.test(league)){
+              player.nationalTeam=team.strTeam||"";
+              player.dataWarning="A national-team record was found; Transfermarkt is used for club details.";
+            }else{
+              player.team=team.strTeam||"";
+              player.league=player.league||league;
+            }
+          }
+        }catch(error){
+          if(!player.dataWarning)player.dataWarning=`Club details could not be verified: ${error.message}`;
+        }
+      }
+      stats.sort((a,b)=>String(b.strSeason||"").localeCompare(String(a.strSeason||"")));
+      const override=profileOverrides[player.name]||{};
+      player.idESPN=player.idESPN||override.espnId;
+      let espnStats=null,espnError="";
+      if(normalize(player.rawSport||player.sport)==="american football"&&player.idESPN){
+        try{
+          espnStats=espnCache.get(player.idESPN)||await fetchEspnNflStats(player.idESPN);
+          espnCache.set(player.idESPN,espnStats);
+        }catch(error){espnError=`ESPN season totals could not be loaded: ${error.message}`}
+      }
+      if(sequence===profileSequence&&selectedPlayer===player)renderProfile(player,stats,espnError||requestMessage,espnStats);
     }
     async function fetchExactPlayer(player,sequence){
       try{
-        const cacheKey=normalize(player.name);
+        const query=cleanPlayerQuery(player.name);
+        if(activeSport==="All"||activeSport==="Soccer"){
+          const key=normalize(query);
+          let tmRecords=transfermarktCache.get(key);
+          if(!tmRecords){
+            const response=await fetch(`/api/transfermarkt/search?q=${encodeURIComponent(query)}`,{headers:{Accept:"application/json"}});
+            if(!response.ok){const payload=await response.json().catch(()=>({}));throw new Error(payload.error||`Transfermarkt returned HTTP ${response.status}`)}
+            const payload=await response.json();
+            tmRecords=Array.isArray(payload.players)?payload.players:[];
+            transfermarktCache.set(key,tmRecords);
+          }
+          const match=tmRecords.find(item=>canonicalPlayerName(item.name)===canonicalPlayerName(player.name))||tmRecords.find(item=>playerNameMatches(item.name,query));
+          if(sequence!==profileSequence||selectedPlayer!==player)return;
+          if(match){
+            const known=profileOverrides[match.name]||{};
+            Object.assign(player,{
+              ...match,id:"",idTM:match.id,idTeam:match.clubId||"",sport:"Soccer",rawSport:"Soccer",icon:sportInfo.Soccer.icon,
+              role:match.position||known.position||player.role,team:match.club||known.club||"",league:match.league||known.league||"",
+              nationality:match.nationality||known.nationality||"",marketValue:match.marketValue||known.marketValue||"",
+              marketValueDate:match.marketValueDate||known.marketValueDate||"",peakMarketValue:match.peakMarketValue||known.peakMarketValue||"",
+              peakMarketValueDate:match.peakMarketValueDate||known.peakMarketValueDate||"",marketValueSource:"TRANSFERMARKT · "+(match.marketValueDate||known.marketValueDate||"LAST PUBLISHED"),
+              transfermarktUrl:match.transfermarktUrl,source:"Transfermarkt",unverified:false
+            });
+            renderProfile(player,[],"");
+            fetchProfileData(player,sequence);
+            return;
+          }
+        }
+        const cacheKey=normalize(query);
         let records=searchCache.get(cacheKey);
         if(!records){
-          const response=await fetch(`${providerUrl}/searchplayers.php?p=${encodeURIComponent(player.name)}`,{headers:{Accept:"application/json"}});
+          const response=await fetch(`${providerUrl}/searchplayers.php?p=${encodeURIComponent(query)}`,{headers:{Accept:"application/json"}});
           if(!response.ok)throw new Error(`TheSportsDB returned HTTP ${response.status}`);
           const payload=await response.json();
           records=Array.isArray(payload.player)?payload.player:[];
           searchCache.set(cacheKey,records);
         }
-        const match=records.find(item=>normalize(item.strPlayer)===normalize(player.name));
-        if(sequence!==profileSequence||selectedPlayer!==player||!match)return;
+        const match=records.find(item=>canonicalPlayerName(item.strPlayer)===canonicalPlayerName(player.name))||records.find(item=>playerNameMatches(item.strPlayer,query));
+        if(sequence!==profileSequence||selectedPlayer!==player)return;
+        if(!match){renderProfile(player,[],"No exact player record was returned. Try a first or last name only.");return}
         const remote=remotePlayer(match);
         if(!apiSportMatches(remote.rawSport,activeSport,match)&&activeSport!=="All")return;
         showProfile(remote);
@@ -504,6 +628,7 @@
       profile.classList.add("show");results.classList.remove("show");
       renderProfile(player,[],player.source?"Loading player details and recorded stats…":"");
       if(player.source)fetchProfileData(player,sequence);
+      else if(player.sport==="Soccer"||activeSport==="All")fetchExactPlayer(player,sequence);
       else if(!player.unverified)fetchExactPlayer(player,sequence);
       profile.scrollIntoView({behavior:"smooth",block:"nearest"});
     }
@@ -511,10 +636,11 @@
     searchInput.addEventListener("keydown",async event=>{
       if(event.key!=="Enter")return;
       event.preventDefault();
-      if(searchTimer&&normalize(searchInput.value).length>=3){
+      if(searchTimer&&cleanPlayerQuery(searchInput.value).length>=2){
         clearTimeout(searchTimer);searchTimer=null;
-        await fetchSearch(searchInput.value,searchSequence,activeSport);
+        pendingSearch=fetchSearch(searchInput.value,searchSequence,activeSport);
       }
+      if(pendingSearch){await pendingSearch;pendingSearch=null}
       if(currentMatches.length){
         const target=aliases[searchInput.value.trim()]||searchInput.value.trim();
         showProfile(currentMatches.find(player=>normalize(player.name)===normalize(target))||currentMatches[0]);
@@ -532,15 +658,15 @@
     }
     function draftRole(position){
       const value=normalize(position);
-      if(/goalkeeper|keeper/.test(value))return "Goalkeeper";
-      if(/defen|centre back|center back|full back|wing back|left back|right back/.test(value))return "Defender";
-      if(/midfield|midfielder/.test(value))return "Midfielder";
-      if(/forward|striker|winger|centre forward|center forward|attacker/.test(value))return "Forward";
+      if(/^(gk|goalkeeper|keeper)$/.test(value))return "Goalkeeper";
+      if(/^(cb|lb|rb|lwb|rwb)$/.test(value)||/defen|centre back|center back|full back|wing back|left back|right back/.test(value))return "Defender";
+      if(/^(dm|cm|am|lm|rm)$/.test(value)||/midfield|midfielder/.test(value))return "Midfielder";
+      if(/^(st|cf|rw|lw)$/.test(value)||/forward|striker|winger|centre forward|center forward|attacker/.test(value))return "Forward";
       return "";
     }
     function isWeekendLeague(league){
       const value=normalize(league);
-      return ["english premier league","premier league","spanish la liga","la liga","german bundesliga","bundesliga","italian serie a","serie a","french ligue 1","ligue 1"].includes(value);
+      return ["english premier league","premier league","spanish la liga","la liga","laliga","german bundesliga","bundesliga","italian serie a","serie a","french ligue 1","ligue 1"].includes(value);
     }
     const europeanCountries=new Set(["albania","andorra","armenia","austria","azerbaijan","belarus","belgium","bosnia and herzegovina","bulgaria","croatia","cyprus","czech republic","denmark","england","estonia","faroe islands","finland","france","georgia","germany","gibraltar","greece","hungary","iceland","ireland","israel","italy","kazakhstan","kosovo","latvia","liechtenstein","lithuania","luxembourg","malta","moldova","montenegro","netherlands","north macedonia","northern ireland","norway","poland","portugal","romania","russia","san marino","scotland","serbia","slovakia","slovenia","spain","sweden","switzerland","turkey","ukraine","wales"]);
     function isEuropeanCountry(country){
@@ -548,7 +674,7 @@
     }
     function isEuropeanLeague(league){
       const value=normalize(league);
-      return /(premier league|la liga|bundesliga|serie a|ligue 1|primeira liga|eredivisie|super league|pro league|scottish premiership|premiership|super lig|liga portugal|first league|league phase|uefa champions league|uefa europa league|uefa conference league|allsvenskan|eliteserien|superliga|ekstraklasa|premier liga|croatian football league|greek super league)/.test(value);
+      return /(premier league|la ?liga|bundesliga|serie a|ligue 1|primeira liga|eredivisie|swiss super league|greek super league|belgian pro league|scottish premiership|premiership|super lig|liga portugal|first league|championship|segunda|serie b|ligue 2|allsvenskan|eliteserien|superliga|ekstraklasa|premier liga|croatian football league|cymru premier|league of ireland premier division|uefa champions league|uefa europa league|uefa conference league)/.test(value);
     }
     function draftPlayerPrice(player){
       const starPrices={
@@ -563,10 +689,11 @@
       };
       const key=normalize(player.name);
       if(starPrices[key])return starPrices[key];
-      const marketValue=String(player.marketValue||profileOverrides[player.name]?.marketValue||"").match(/€\s*([\d.]+)\s*(bn|m|k)?/i);
+      const marketValue=String(player.marketValue||profileOverrides[player.name]?.marketValue||"").match(/€\s*([\d.]+)\s*(bn|b|m|k)?/i);
       if(marketValue){
-        const amount=Number(marketValue[1])*(marketValue[2]?.toLowerCase()==="bn"?1000:marketValue[2]?.toLowerCase()==="k"?0.001:1);
-        if(amount>0)return Math.min(20,Math.max(4,Math.round(4+Math.log2(amount+1)*2)));
+        const suffix=marketValue[2]?.toLowerCase();
+        const amount=Number(marketValue[1])*(suffix==="bn"||suffix==="b"?1000:suffix==="k"?0.001:1);
+        if(amount>0)return Math.max(starPrices[normalize(player.name)]||0,Math.min(20,Math.max(4,Math.round(4+Math.log2(amount+1)*1.8))));
       }
       const role=draftRole(player.role);
       return role==="Goalkeeper"?5:role==="Defender"?6:role==="Midfielder"?7:8;
@@ -579,49 +706,44 @@
         if(term.length<2){candidates=[];status="Enter at least two letters to search players.";draw();return}
         status="Searching player records and current club league…";errorMessage="";draw();
         try{
-          let records=searchCache.get(normalize(term));
+          const key=normalize(term);
+          let records=transfermarktCache.get(key);
           if(!records){
-            const response=await fetch(`${providerUrl}/searchplayers.php?p=${encodeURIComponent(term)}`,{headers:{Accept:"application/json"}});
-            if(!response.ok)throw new Error(`TheSportsDB returned HTTP ${response.status}`);
+            const response=await fetch(`/api/transfermarkt/search?q=${encodeURIComponent(cleanPlayerQuery(term))}`,{headers:{Accept:"application/json"}});
+            if(!response.ok){const payload=await response.json().catch(()=>({}));throw new Error(payload.error||`Transfermarkt returned HTTP ${response.status}`)}
             const payload=await response.json();
-            records=Array.isArray(payload.player)?payload.player:[];
-            searchCache.set(normalize(term),records);
+            records=Array.isArray(payload.players)?payload.players:[];
+            transfermarktCache.set(key,records);
           }
           if(sequence!==requestSequence)return;
-          const soccerRecords=records.filter(record=>normalize(record.strSport)==="soccer").slice(0,8);
-          const resolved=await Promise.all(soccerRecords.map(async record=>{
-            if(!record.idTeam)return null;
-            let team=teamCache.get(record.idTeam);
-            if(!team){
-              const response=await fetch(`${providerUrl}/lookupteam.php?id=${encodeURIComponent(record.idTeam)}`,{headers:{Accept:"application/json"}});
-              if(!response.ok)throw new Error(`Club details returned HTTP ${response.status}`);
-              const payload=await response.json();
-              team=payload.teams?.[0]||null;
-              teamCache.set(record.idTeam,team);
-            }
-            if(!team)return null;
-            const league=team.strLeague||"";
-            const nationalTeam=/world cup|euro championship|nations league|international|fifa world/i.test(league);
-            const eligible=!nationalTeam&&(competition==="weekend"?isWeekendLeague(league):(isEuropeanLeague(league)||isEuropeanCountry(team.strCountry)));
-            if(!eligible)return null;
-            const player=remotePlayer(record);
-            const playerRole=draftRole(record.strPosition);
-            if(!playerRole||playerRole!==roleForLine[formationSlots(formation)[slotIndex]?.line])return null;
-            player.role=record.strPosition||player.role;
-            player.team=team.strTeam||record.strTeam||"";
-            player.league=league;
-            player.clubCountry=team.strCountry||"";
-            player.marketValue=record.marketValue||"";
-            return player;
+          const requiredRole=roleForLine[formationSlots(formation)[slotIndex]?.line];
+          const resolved=records.filter(record=>{
+            const role=draftRole(record.position);
+            return !record.isNationalTeam&&role===requiredRole&&(competition==="weekend"?isWeekendLeague(record.league):isEuropeanLeague(record.league)||isEuropeanCountry(record.clubCountry));
+          }).map(record=>({
+            ...record,id:"",idTM:record.id,idTeam:record.clubId||"",sport:"Soccer",rawSport:"Soccer",
+            icon:sportInfo.Soccer.icon,role:record.position,team:record.club||"",league:record.league||"",
+            nationality:record.nationality||"",marketValue:record.marketValue||"",source:"Transfermarkt"
           }));
           if(sequence!==requestSequence)return;
-          candidates=resolved.filter(Boolean);
-          status=candidates.length?`${candidates.length} verified ${competition==="weekend"?"top-five league":"European club"} option${candidates.length===1?"":"s"} found.`:"No player in this position matched the selected competition using returned club data. Try a shorter name or switch slate.";
-          if(competition==="weekday"&&candidates.length)status+=" European club only; the free feed cannot confirm UEFA squad registration.";
+          candidates=resolved;
+          if(!candidates.length)candidates=localDraftCandidates(term,requiredRole);
+          status=candidates.length?`${candidates.length} ${competition==="weekend"?"top-five league":"European club"} option${candidates.length===1?"":"s"} found.`:"No player in this position matched the selected competition. Try a first or last name, or switch slate.";
+          if(competition==="weekday"&&candidates.length)status+=" Club leagues are verified; individual UEFA squad registration is not.";
           draw();
         }catch(error){
           if(sequence!==requestSequence)return;
-          candidates=[];status="Player search could not be completed.";errorMessage=error.message;draw();
+          const requiredRole=roleForLine[formationSlots(formation)[slotIndex]?.line];
+          const fallback=localDraftCandidates(term,requiredRole);
+          candidates=fallback;
+          status=fallback.length?"Live search unavailable; showing locally known players with a verified club league.":"Player search unavailable, and no locally indexed player can be confirmed for this slate.";
+          errorMessage=error.message;draw();
+        }
+        function localDraftCandidates(term,requiredRole){
+          return players.filter(player=>player.sport==="Soccer"&&draftRole(player.role)===requiredRole&&playerNameMatches(player.name,term)).map(player=>{
+            const known=profileOverrides[player.name]||{};
+            return {...player,...known,team:known.club||"",league:known.league||"",marketValue:known.marketValue||"",source:"local index"};
+          }).filter(player=>competition==="weekend"?isWeekendLeague(player.league):isEuropeanLeague(player.league)||isEuropeanCountry(player.clubCountry));
         }
       }
       const roleForLine={GK:"Goalkeeper",DEF:"Defender",MID:"Midfielder",FWD:"Forward"};
@@ -630,7 +752,7 @@
         const picked=new Set(lineup.map(item=>normalize(item.name)));
         const available=candidates.filter(player=>!picked.has(normalize(player.name)));
         const layout=[{line:"FWD",count:Number(formation.split("-")[2])},{line:"MID",count:Number(formation.split("-")[1])},{line:"DEF",count:Number(formation.split("-")[0])},{line:"GK",count:1}];
-        modal.innerHTML=`<div class="modal-head"><span class="eyebrow">SOCCER ONLY · SEARCHABLE FANTASY XI</span><button class="modal-close" aria-label="Close">×</button></div><h2 id="modal-title">Build your XI on a budget</h2><p class="modal-copy">Pick a formation, search players by name, and keep all 11 picks within 100 credits. Fantasy prices rise for top stars; they are not Transfermarkt valuations.</p><div class="formation-row"><button class="formation${competition==="weekend"?" active":""}" data-competition="weekend">WEEKEND · TOP FIVE LEAGUES</button><button class="formation${competition==="weekday"?" active":""}" data-competition="weekday">WEEKDAY · EUROPEAN CUPS</button></div><p class="draft-note">${competition==="weekend"?"Eligible clubs: Premier League, La Liga, Bundesliga, Serie A, and Ligue 1.":"Searches include European domestic clubs; UEFA Champions / Europa / Conference League squad registration cannot be verified by the free player feed."}</p><div class="formation-row">${["4-3-3","4-4-2","3-5-2"].map(value=>`<button class="formation${formation===value?" active":""}" data-formation="${value}">${value}</button>`).join("")}</div><div class="pitch">${layout.map(row=>`<div class="pitch-line">${Array.from({length:row.count},(_,i)=>{const entry=lineup.filter(x=>x.line===row.line)[i];return `<button class="slot${entry?" filled":""}" data-slot="${row.line}-${i}"><small>${row.line}${row.count>1?` ${i+1}`:""}</small>${entry?`${escapeHtml(entry.name)}<br>€${entry.price} cr`:"Choose"}</button>`}).join("")}</div>`).join("")}</div><div class="draft-summary"><span>TEAM COST <b>${total} / 100 CREDITS</b></span><span>REMAINING <b>${remaining} CREDITS</b></span></div><div class="pool-title">${current?`SEARCH ${roleForLine[current.line].toUpperCase()}`:"XI COMPLETE"}</div>${current?`<input class="draft-search" type="search" value="${escapeHtml(query)}" placeholder="Search any player name…" aria-label="Search players for your XI"><div class="draft-status">${escapeHtml(status)}${errorMessage?` ${escapeHtml(errorMessage)}`:""}</div><div class="pool">${available.map((player,index)=>{const price=draftPlayerPrice(player),disabled=price>remaining;return `<button class="pick" data-player-index="${index}" ${disabled?"disabled":""}><span>${escapeHtml(player.name)}<small>${escapeHtml(player.team)} · ${escapeHtml(player.league)}</small></span><small>€${price} cr</small></button>`}).join("")||`<div class="empty-result">${escapeHtml(status)}</div>`}</div>`:"<div class=\"draft-status\">Your formation is filled. Remove a player by clicking their pitch slot.</div>"}<div class="modal-foot"><span class="progress">${lineup.length} / 11 POSITIONS FILLED${current?` · NEXT: ${current.line}`:""}</span><button class="primary" id="finish-draft" ${lineup.length!==11||total>100?"disabled":""}>LOCK IN XI ↗</button></div><div class="announcement" id="draft-result"></div>`;
+        modal.innerHTML=`<div class="modal-head"><span class="eyebrow">SOCCER ONLY · SEARCHABLE FANTASY XI</span><button class="modal-close" aria-label="Close">×</button></div><h2 id="modal-title">Build your XI on a budget</h2><p class="modal-copy">Pick a formation, search players by name, and keep all 11 picks within 100 credits. Fantasy prices rise for top stars; they are not Transfermarkt valuations.</p><div class="formation-row"><button class="formation${competition==="weekend"?" active":""}" data-competition="weekend">WEEKEND · TOP FIVE LEAGUES</button><button class="formation${competition==="weekday"?" active":""}" data-competition="weekday">WEEKDAY · EUROPEAN LEAGUES</button></div><p class="draft-note">${competition==="weekend"?"Eligible clubs: Premier League, La Liga, Bundesliga, Serie A, and Ligue 1.":"Searches include European domestic leagues; UEFA Champions / Europa / Conference League squad registration cannot be verified."}</p><div class="formation-row">${["4-3-3","4-4-2","3-5-2"].map(value=>`<button class="formation${formation===value?" active":""}" data-formation="${value}">${value}</button>`).join("")}</div><div class="pitch">${layout.map(row=>`<div class="pitch-line">${Array.from({length:row.count},(_,i)=>{const entry=lineup.filter(x=>x.line===row.line)[i];return `<button class="slot${entry?" filled":""}" data-slot="${row.line}-${i}"><small>${row.line}${row.count>1?` ${i+1}`:""}</small>${entry?`${escapeHtml(entry.name)}<br>${entry.price} cr`:"Choose"}</button>`}).join("")}</div>`).join("")}</div><div class="draft-summary"><span>TEAM COST <b>${total} / 100 CREDITS</b></span><span>REMAINING <b>${remaining} CREDITS</b></span></div><div class="pool-title">${current?`SEARCH ${roleForLine[current.line].toUpperCase()}`:"XI COMPLETE"}</div>${current?`<input class="draft-search" type="search" value="${escapeHtml(query)}" placeholder="Search any player name…" aria-label="Search players for your XI"><div class="draft-status">${escapeHtml(status)}${errorMessage?` ${escapeHtml(errorMessage)}`:""}</div><div class="pool">${available.map((player,index)=>{const price=draftPlayerPrice(player),disabled=price>remaining,details=[player.team,player.league,player.marketValue&&`TM ${player.marketValue}`].filter(Boolean).join(" · ");return `<button class="pick" data-player-index="${index}" ${disabled?"disabled":""}><span>${escapeHtml(player.name)}<small>${escapeHtml(details)}</small></span><small>${price} cr</small></button>`}).join("")||`<div class="empty-result">${escapeHtml(status)}</div>`}</div>`:"<div class=\"draft-status\">Your formation is filled. Remove a player by clicking their pitch slot.</div>"}<div class="modal-foot"><span class="progress">${lineup.length} / 11 POSITIONS FILLED${current?` · NEXT: ${current.line}`:""}</span><button class="primary" id="finish-draft" ${lineup.length!==11||total>100?"disabled":""}>LOCK IN XI ↗</button></div><div class="announcement" id="draft-result"></div>`;
         modal.querySelector(".modal-close").addEventListener("click",closeModal);
         modal.querySelectorAll("[data-competition]").forEach(button=>button.addEventListener("click",()=>{competition=button.dataset.competition;query="";candidates=[];status="Search a player for the position shown.";requestSequence++;draw()}));
         modal.querySelectorAll("[data-formation]").forEach(button=>button.addEventListener("click",()=>{formation=button.dataset.formation;lineup=[];slotIndex=0;query="";candidates=[];status="Search a player for the position shown.";requestSequence++;draw()}));
@@ -657,7 +779,7 @@
         }));
         modal.querySelector("#finish-draft").addEventListener("click",()=>{
           const result=modal.querySelector("#draft-result");
-          result.innerHTML=`YOUR ${formation} XI IS LOCKED IN · €${total}/100 CREDITS<small>${lineup.map(item=>`${escapeHtml(item.name)} (€${item.price})`).join(" · ")}</small>`;
+          result.innerHTML=`YOUR ${formation} XI IS LOCKED IN · ${total}/100 CREDITS<small>${lineup.map(item=>`${escapeHtml(item.name)} (${item.price} cr)`).join(" · ")}</small>`;
           result.classList.add("show");
         });
       }
