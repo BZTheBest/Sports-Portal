@@ -89,6 +89,18 @@
     .nfl-undo-pick:hover{color:#fff}
     @media(max-width:760px){.backdrop.nfl-game-backdrop{padding:0}.modal.nfl-game-modal{height:100dvh;max-height:100dvh;padding:14px}.nfl-party-layout{grid-template-columns:1fr}.nfl-party-candidates{max-height:28vh}.nfl-roster-list{grid-template-rows:none;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.nfl-roster-row{grid-template-columns:54px minmax(0,1fr);min-height:62px}.nfl-roster-position{font-size:13px}.nfl-party-topline{align-items:flex-start;flex-direction:column}.nfl-party-mode{width:100%}.nfl-party-mode button{flex:1;padding:9px 5px}.nfl-party-footer{margin-top:12px}.nfl-draft-panel{order:-1}}
     @media(max-width:410px){.nfl-roster-list{grid-template-columns:1fr}.nfl-party-brand strong{font-size:16px}.nfl-roster-row{min-height:52px}.nfl-party-title{font-size:25px}}
+    .nfl-roster-position{border:0;cursor:default;background:linear-gradient(145deg,#ffe17a,#d9a928);color:#2c2108}
+    .nfl-roster-position-selector{width:100%;height:100%;padding:0;cursor:pointer;background:linear-gradient(145deg,#ffe17a,#d9a928);color:#2c2108;transition:filter .15s,background .15s}
+    .nfl-roster-position-selector:hover{filter:brightness(1.12)}
+    .nfl-roster-row.active .nfl-roster-position-selector{background:linear-gradient(145deg,#fff1ad,#f0c84f);box-shadow:inset 0 0 0 3px #fff3bd}
+    .nfl-roster-position-label{display:grid;place-items:center;width:100%;height:100%}
+    .nfl-team-banner{border-color:#9c7248;background:linear-gradient(120deg,#76502e,#432f21)}
+    .nfl-team-banner:after{border-color:#ffe8c112}
+    .nfl-team-meta{color:#f5d6ad}
+    .nfl-team-instruction{color:#fff0dd}
+    .nfl-spin-button{background:#ffcf61;color:#35240d;border-color:#ffe29a!important}
+    .nfl-spin-button:hover{background:#ffdf8a}
+    .nfl-progress-pill{border-color:#82613d;color:#f0d7b6}
   </style>
 </head>
 <body>
@@ -1023,7 +1035,7 @@
       const session=++modalGeneration;
       const playerSlots=["QB","RB","RB","WR","WR","TE","FLEX"];
       const fullSlots=[...playerSlots,"D/ST","K"];
-      let data=null,mode="standard",lineup=[],currentTeam="",loading=true,error="",query="",loadAttempt=0;
+      let data=null,mode="standard",lineup=[],pickOrder=[],selectedSlotIndex=null,currentTeam="",loading=true,error="",query="",loadAttempt=0;
       backdrop.classList.add("nfl-game-backdrop","show");
       modal.classList.add("nfl-game-modal");
       function teamName(abbreviation){
@@ -1037,44 +1049,58 @@
         return mode==="full"?fullSlots:playerSlots;
       }
       function slotCandidates(slot){
-        const picked=new Set(lineup.map(player=>player.id));
+        const picked=new Set(lineup.filter(Boolean).map(player=>player.id));
         return data.players.filter(player=>{
           const eligible=slot==="FLEX"?["RB","WR","TE"].includes(player.position):player.position===slot;
           return eligible&&player.teams.includes(currentTeam)&&!picked.has(player.id);
         }).sort((left,right)=>right.points-left.points||left.name.localeCompare(right.name));
       }
       function draw(){
-        const activeSlot=slots()[lineup.length]||"";
+        const rosterSlots=slots();
+        const activeSlot=selectedSlotIndex===null?null:rosterSlots[selectedSlotIndex]||null;
         const allOptions=data&&activeSlot?slotCandidates(activeSlot):[];
         const filteredOptions=allOptions.filter(player=>normalize(player.name).includes(normalize(query)));
         const options=filteredOptions.slice(0,40);
-        const chosenPoints=lineup.reduce((total,player)=>total+player.points,0);
-        const roster=slots().map((slot,index)=>{
+        const chosenPoints=lineup.filter(Boolean).reduce((total,player)=>total+player.points,0);
+        const pickedCount=pickOrder.length;
+        const roster=rosterSlots.map((slot,index)=>{
           const player=lineup[index];
           const label=slot==="FLEX"?"FLEX":slot;
-          const undo=player&&index===lineup.length-1?`<button class="nfl-undo-pick" data-undo-pick aria-label="Undo last pick">Undo</button>`:"";
-          return `<div class="nfl-roster-row${index===lineup.length&&activeSlot?" active":""}${player?" filled":""}"><span class="nfl-roster-position">${label}</span><span class="nfl-roster-player"><span>${player?escapeHtml(player.name):index===lineup.length&&activeSlot?(loading?"Loading player pool…":error?"Unavailable":`Select ${label}`):"Waiting for pick"}${player?`<small>${escapeHtml(teamName(player.pickTeam))} · ${player.season} best season</small>`:""}</span>${player?`<span class="nfl-roster-score">${player.points.toFixed(1)} pts${undo}</span>`:""}</span></div>`;
+          const undo=player&&index===pickOrder[pickOrder.length-1]?`<button class="nfl-undo-pick" data-undo-pick aria-label="Undo last pick">Undo</button>`:"";
+          const positionMarkup=player?`<span class="nfl-roster-position nfl-roster-position-label">${label}</span>`:`<button type="button" class="nfl-roster-position nfl-roster-position-selector" data-slot-index="${index}" aria-label="Choose ${label} position" aria-pressed="${selectedSlotIndex===index}">${label}</button>`;
+          const selectionText=loading?"Loading player pool…":error?"Unavailable":selectedSlotIndex===index?"Choose a player below":"Click to choose this position";
+          return `<div class="nfl-roster-row${selectedSlotIndex===index&&!player?" active":""}${player?" filled":""}">${positionMarkup}<span class="nfl-roster-player"><span>${player?escapeHtml(player.name):selectionText}${player?`<small>${escapeHtml(teamName(player.pickTeam))} · ${player.season} best season</small>`:""}</span>${player?`<span class="nfl-roster-score">${player.points.toFixed(1)} pts${undo}</span>`:""}</span></div>`;
         }).join("");
         const playerList=options.map(player=>`<button class="nfl-candidate" data-nfl-player="${escapeHtml(player.id)}"><span><strong>${escapeHtml(player.name)}</strong><small>${player.season} best season · ${escapeHtml(player.position)}</small></span><span class="nfl-candidate-points">${player.points.toFixed(1)} pts</span></button>`).join("");
-        modal.innerHTML=`<div class="nfl-party-shell"><header class="nfl-party-header"><div class="nfl-party-brand"><span class="nfl-party-mark">🏈</span><span><small>ALL-TIME NFL FANTASY DRAFT</small><strong>NFL PERRY PICK 'EM</strong></span></div><button class="nfl-party-close" aria-label="Close game">×</button></header><h2 class="nfl-party-title" id="modal-title">Build your <span>dream team.</span></h2><p class="nfl-party-lead">Pick one player from each random franchise spin. Every player uses their best available single-season standard fantasy score.</p><div class="nfl-party-topline"><span class="nfl-party-kicker">CHOOSE YOUR ROSTER FORMAT</span><div class="nfl-party-mode"><button data-mode="standard" class="${mode==="standard"?"active":""}">STANDARD · 7 PICKS</button><button data-mode="full" class="${mode==="full"?"active":""}">FULL · 9 PICKS</button></div></div><p class="nfl-format-note">Standard: 1 QB · 2 RB · 2 WR · 1 TE · 1 FLEX. Full adds 1 D/ST and 1 K.</p><div class="nfl-party-layout"><section class="nfl-roster-panel"><h3 class="nfl-panel-heading">YOUR LINEUP <span class="nfl-progress-pill">${lineup.length} / ${slots().length} PICKS</span></h3><div class="nfl-roster-list">${roster}</div><div class="nfl-party-footer"><div class="nfl-total">TOTAL STANDARD FANTASY POINTS<strong><span>${chosenPoints.toFixed(1)}</span> PTS</strong></div>${activeSlot?"":`<button class="nfl-again" id="reset-perry">DRAFT AGAIN ↻</button>`}</div></section><section class="nfl-draft-panel"><h3 class="nfl-panel-heading">🎲 &nbsp;FRANCHISE SPIN <span class="nfl-progress-pill">${loading?"LOADING":error?"ERROR":`${lineup.length+1} OF ${slots().length}`}</span></h3><div class="nfl-team-banner"><div class="nfl-team-meta">DRAFTING FROM</div><div class="nfl-team-name">${loading?"Loading teams…":error?escapeHtml(error):teamName(currentTeam)}</div><p class="nfl-team-instruction">${!loading&&!error&&activeSlot?`Choose a ${activeSlot==="FLEX"?"RB, WR or TE":activeSlot==="D/ST"?"defense":"kicker"} who played for this team.`:!activeSlot?"Lineup complete — you're ready to play again!":""}</p><div class="nfl-party-controls">${activeSlot?`<button class="nfl-spin-button" id="reroll-team" ${loading||error?"disabled":""}>↻ &nbsp;SPIN ANOTHER TEAM</button>`:""}</div></div>${activeSlot?`<div class="nfl-search-wrap"><input class="nfl-search-input" type="search" value="${escapeHtml(query)}" placeholder="Search this team's players…" aria-label="Search eligible players"></div><div class="nfl-candidate-count">${loading?"Loading historical player data…":error?escapeHtml(error):`${filteredOptions.length} eligible ${activeSlot} player${filteredOptions.length===1?"":"s"} · sorted by best season points`}</div><div class="nfl-party-candidates">${loading?'<div class="nfl-party-loading">Loading player and team history…</div>':error?'<div class="nfl-empty">NFL history could not be loaded. Close the game and try again.</div>':playerList||`<div class="nfl-empty">${filteredOptions.length?"No players match that search.":"No eligible player for this team and position. Spin another team to continue."}</div>`}</div>`:`<div class="nfl-empty">All roster spots are filled. Your final lineup is ready.</div>`}<p class="nfl-source">Standard scoring is non-PPR. Historical data currently covers 1999–2024 and includes retired players. <a href="https://github.com/nflverse/nflverse-data" target="_blank" rel="noopener noreferrer">Data source: nflverse ↗</a></p></section></div></div>`;
+        modal.innerHTML=`<div class="nfl-party-shell"><header class="nfl-party-header"><div class="nfl-party-brand"><span class="nfl-party-mark">🏈</span><span><small>ALL-TIME NFL FANTASY DRAFT</small><strong>NFL PERRY PICK 'EM</strong></span></div><button class="nfl-party-close" aria-label="Close game">×</button></header><h2 class="nfl-party-title" id="modal-title">Build your <span>dream team.</span></h2><p class="nfl-party-lead">Pick one player from each random franchise spin. Every player uses their best available single-season standard fantasy score.</p><div class="nfl-party-topline"><span class="nfl-party-kicker">CHOOSE YOUR ROSTER FORMAT</span><div class="nfl-party-mode"><button data-mode="standard" class="${mode==="standard"?"active":""}">STANDARD · 7 PICKS</button><button data-mode="full" class="${mode==="full"?"active":""}">FULL · 9 PICKS</button></div></div><p class="nfl-format-note">Standard: 1 QB · 2 RB · 2 WR · 1 TE · 1 FLEX. Full adds 1 D/ST and 1 K.</p><div class="nfl-party-layout"><section class="nfl-roster-panel"><h3 class="nfl-panel-heading">YOUR LINEUP <span class="nfl-progress-pill">${pickedCount} / ${rosterSlots.length} PICKS</span></h3><div class="nfl-roster-list">${roster}</div><div class="nfl-party-footer"><div class="nfl-total">TOTAL STANDARD FANTASY POINTS<strong><span>${chosenPoints.toFixed(1)}</span> PTS</strong></div>${pickedCount===rosterSlots.length?`<button class="nfl-again" id="reset-perry">DRAFT AGAIN ↻</button>`:""}</div></section><section class="nfl-draft-panel"><h3 class="nfl-panel-heading">🎲 &nbsp;FRANCHISE SPIN <span class="nfl-progress-pill">${loading?"LOADING":error?"ERROR":`${pickedCount+1} OF ${rosterSlots.length}`}</span></h3><div class="nfl-team-banner"><div class="nfl-team-meta">DRAFTING FROM</div><div class="nfl-team-name">${loading?"Loading teams…":error?escapeHtml(error):teamName(currentTeam)}</div><p class="nfl-team-instruction">${error?"Retry loading team and player history below.":loading?"Loading team and player history…":pickedCount===rosterSlots.length?"Lineup complete — you're ready to play again!":activeSlot?`Choose a ${activeSlot==="FLEX"?"RB, WR or TE":activeSlot==="D/ST"?"defense":"kicker"} for the ${activeSlot} slot.`:"Choose any open position on your lineup to see eligible players from this team."}</p><div class="nfl-party-controls">${pickedCount<rosterSlots.length&&!loading&&!error?`<button class="nfl-spin-button" id="reroll-team">↻ &nbsp;CHOOSE ANOTHER TEAM</button>`:""}</div></div>${pickedCount<rosterSlots.length?activeSlot?`<div class="nfl-search-wrap"><input class="nfl-search-input" type="search" value="${escapeHtml(query)}" placeholder="Search ${escapeHtml(teamName(currentTeam))} ${escapeHtml(activeSlot)} players…" aria-label="Search eligible players"></div><div class="nfl-candidate-count">${loading?"Loading historical player data…":error?escapeHtml(error):`${filteredOptions.length} ${activeSlot} option${filteredOptions.length===1?"":"s"} · sorted by best-season points`}</div><div class="nfl-party-candidates">${loading?'<div class="nfl-party-loading">Loading player and team history…</div>':error?'<div class="nfl-empty">NFL history could not be loaded. Use retry above.</div>':playerList||`<div class="nfl-empty">${filteredOptions.length?"No players match that search.":"No eligible player for this position on this team. Choose another open position or spin another team."}</div>`}</div>`:`<div class="nfl-empty">Choose an open position on your lineup to see eligible players.</div>`:`<div class="nfl-empty">All roster spots are filled. Your final lineup is ready.</div>`}<p class="nfl-source">Standard scoring is non-PPR. Historical data currently covers 1999–2024 and includes retired players. <a href="https://github.com/nflverse/nflverse-data" target="_blank" rel="noopener noreferrer">Data source: nflverse ↗</a></p></section></div></div>`;
         modal.querySelector(".nfl-party-close").addEventListener("click",closeModal);
         modal.querySelectorAll("[data-mode]").forEach(button=>button.addEventListener("click",()=>{
           if(mode===button.dataset.mode)return;
-          mode=button.dataset.mode;lineup=[];query="";currentTeam=data?randomTeam(currentTeam):"";draw();
+          mode=button.dataset.mode;lineup=Array(slots().length).fill(null);pickOrder=[];selectedSlotIndex=null;query="";currentTeam=data?randomTeam(currentTeam):"";draw();
+        }));
+        modal.querySelectorAll("[data-slot-index]").forEach(button=>button.addEventListener("click",()=>{
+          const index=Number(button.dataset.slotIndex);
+          if(!Number.isInteger(index)||lineup[index]||!rosterSlots[index])return;
+          selectedSlotIndex=index;query="";draw();
         }));
         modal.querySelectorAll("[data-nfl-player]").forEach(button=>button.addEventListener("click",()=>{
           const player=data.players.find(item=>item.id===button.dataset.nflPlayer);
-          if(!player||!activeSlot||!player.teams.includes(currentTeam)||lineup.some(item=>item.id===player.id))return;
-          lineup.push({...player,slot:activeSlot,pickTeam:currentTeam});
+          if(!player||!activeSlot||selectedSlotIndex===null||!player.teams.includes(currentTeam)||lineup.some(item=>item?.id===player.id))return;
+          lineup[selectedSlotIndex]={...player,slot:activeSlot,pickTeam:currentTeam};
+          pickOrder.push(selectedSlotIndex);
+          selectedSlotIndex=null;
           query="";
-          if(lineup.length<slots().length)currentTeam=randomTeam(currentTeam);
+          if(pickOrder.length<rosterSlots.length)currentTeam=randomTeam(currentTeam);
           draw();
         }));
-        modal.querySelector("#reroll-team")?.addEventListener("click",()=>{currentTeam=randomTeam(currentTeam);query="";draw()});
-        modal.querySelector("#reset-perry")?.addEventListener("click",()=>{lineup=[];query="";currentTeam=randomTeam(currentTeam);draw()});
+        modal.querySelector("#reroll-team")?.addEventListener("click",()=>{currentTeam=randomTeam(currentTeam);selectedSlotIndex=null;query="";draw()});
+        modal.querySelector("#reset-perry")?.addEventListener("click",()=>{lineup=Array(slots().length).fill(null);pickOrder=[];selectedSlotIndex=null;query="";currentTeam=randomTeam(currentTeam);draw()});
         modal.querySelector("[data-undo-pick]")?.addEventListener("click",()=>{
-          const lastPick=lineup.pop();
+          const lastSlot=pickOrder.pop();
+          const lastPick=lastSlot===undefined?null:lineup[lastSlot];
+          if(lastSlot!==undefined)lineup[lastSlot]=null;
           if(lastPick)currentTeam=lastPick.pickTeam;
+          selectedSlotIndex=lastSlot??null;
           query="";
           draw();
         });
