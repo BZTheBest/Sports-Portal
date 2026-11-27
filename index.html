@@ -1634,6 +1634,17 @@
         if(gameState.game.isDraw())return "The game is a draw.";
         return "";
       }
+      function resolveEngineMove(uci){
+        const from=uci.slice(0,2),engineTo=uci.slice(2,4),promotion=uci[4]||undefined;
+        const legalMoves=gameState.game.moves({square:from,verbose:true});
+        let move=legalMoves.find(candidate=>candidate.to===engineTo&&candidate.promotion===promotion);
+        if(!move&&gameState.game.get(from)?.type==="k"&&["a","h"].includes(engineTo[0])&&engineTo[1]===from[1]){
+          const castleFlag=engineTo[0]==="h"?"k":"q";
+          move=legalMoves.find(candidate=>candidate.flags.includes(castleFlag));
+        }
+        if(!move)throw new Error(`Leela returned an illegal move: ${uci}. Start a new game and try again.`);
+        return move;
+      }
       function retryChess(){
         gameState.error="";
         if(!gameState.engine){
@@ -1734,8 +1745,8 @@
           const result=await gameState.engine.goZero({fen},{multipv:1,net:gameState.net,nodes:difficulties[mode]||difficulties.medium});
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken||fen!==gameState.game.fen())return;
           if(!result.bestmove||result.bestmove==="(none)")throw new Error("Leela did not return a legal move.");
-          const move=gameState.game.move({from:result.bestmove.slice(0,2),to:result.bestmove.slice(2,4),promotion:result.bestmove[4]||"q"});
-          if(!move)throw new Error("Leela returned an invalid move. Start a new game and try again.");
+          const engineMove=resolveEngineMove(result.bestmove);
+          const move=gameState.game.move({from:engineMove.from,to:engineMove.to,promotion:engineMove.promotion||"q"});
           gameState.message=`Leela played ${move.san}${gameState.game.isCheck()?" — check":""}.`;
         }catch(error){
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken)return;
@@ -1752,7 +1763,8 @@
           const result=await gameState.engine.goZero({fen},{multipv:1,net:gameState.net,nodes:difficulties[modeSelect.value]||difficulties.medium});
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken||fen!==gameState.game.fen())return;
           const score=result.lines?.at(-1)?.[0]?.score;
-          gameState.message=Number.isFinite(score)?`Leela evaluation: ${score>=10000?"forced win":score<=-10000?"forced loss":`${score>=0?"+":""}${(score/100).toFixed(2)} pawns`} · best move ${result.bestmove}.`:`Leela recommends ${result.bestmove}.`;
+          const bestMove=resolveEngineMove(result.bestmove);
+          gameState.message=Number.isFinite(score)?`Leela evaluation: ${score>=10000?"forced win":score<=-10000?"forced loss":`${score>=0?"+":""}${(score/100).toFixed(2)} pawns`} · best move ${bestMove.san}.`:`Leela recommends ${bestMove.san}.`;
         }catch(error){
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken)return;
           gameState.error=error.message;gameState.message="";
