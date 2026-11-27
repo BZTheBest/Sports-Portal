@@ -1624,7 +1624,7 @@
       modal.innerHTML=`<div class="chess-game-shell"><header class="chess-game-header"><div class="chess-game-brand"><span class="chess-game-mark">♞</span><span><small>NEURAL-NETWORK CHESS · LEELA CHESS ZERO</small><strong>Play the AI</strong></span></div><button class="chess-game-close" aria-label="Close chess game">×</button></header><div class="chess-top"><div><div class="eyebrow">CHOOSE YOUR SIDE</div><h2 id="modal-title">Play Chess</h2></div><div class="chess-controls"><label>PLAY AS <select id="chess-side" aria-label="Choose your side"><option value="w">White</option><option value="b">Black</option></select></label><label>MODE <select id="chess-mode" aria-label="Chess game mode"><option value="easy">Easy AI</option><option value="medium" selected>Medium AI</option><option value="hard">Hard AI</option><option value="analysis">Analysis board</option></select></label></div></div><div class="chess-status chess-game-status" id="chess-status" role="status" aria-live="polite"></div><div class="chess-board-wrap"><div class="chess-board" id="chess-board" role="grid" aria-label="Chess board"></div><aside class="chess-side-panel"><div class="chess-controls"><button type="button" id="chess-new">New game</button><button type="button" id="chess-undo">Undo</button><button type="button" id="chess-analyze">Analyze position</button></div><div class="eyebrow">MOVE HISTORY</div><div class="chess-moves" id="chess-moves" aria-live="polite"></div></aside></div><p class="chess-attribution">Powered by <a href="https://github.com/lichess-org/zerofish" target="_blank" rel="noopener noreferrer">ZeroFish</a> and Leela Chess Zero’s <a href="https://github.com/dkappe/leela-chess-weights/wiki/Bad-Gyal" target="_blank" rel="noopener noreferrer">TinyGyal-8 network</a>. Easy, Medium, and Hard increase the engine’s search budget; Analysis lets you move either side freely.</p></div>`;
       const board=modal.querySelector("#chess-board"),status=modal.querySelector("#chess-status"),moves=modal.querySelector("#chess-moves"),modeSelect=modal.querySelector("#chess-mode"),sideSelect=modal.querySelector("#chess-side");
       const pieces={wk:"♔",wq:"♕",wr:"♖",wb:"♗",wn:"♘",wp:"♙",bk:"♚",bq:"♛",br:"♜",bb:"♝",bn:"♞",bp:"♟"};
-      const difficulties={easy:80,medium:300,hard:1000};
+      const difficulties={easy:24,medium:80,hard:200};
       function gameResult(){
         if(!gameState.game)return "";
         if(gameState.game.isCheckmate())return `Checkmate — ${gameState.game.turn()!==gameState.playerColor?"you win!":"Leela wins."}`;
@@ -1644,6 +1644,23 @@
         }
         if(!move)throw new Error(`Leela returned an illegal move: ${uci}. Start a new game and try again.`);
         return move;
+      }
+      function searchLeela(fen,nodes){
+        const engine=gameState.engine;
+        let timeoutId;
+        const search=engine.goZero({fen},{multipv:1,net:gameState.net,nodes});
+        const timeout=new Promise((resolve,reject)=>{
+          timeoutId=setTimeout(()=>{
+            engine.stop();
+            engine.quit();
+            if(session===modalGeneration&&chessGame===gameState&&gameState.engine===engine){
+              gameState.engine=null;
+              chessEnginePromise=null;
+            }
+            reject(new Error("Leela's search took too long and was stopped. Retry the engine or choose a lower difficulty."));
+          },20000);
+        });
+        return Promise.race([search,timeout]).finally(()=>clearTimeout(timeoutId));
       }
       function retryChess(){
         gameState.error="";
@@ -1726,7 +1743,7 @@
         try{
           const {Chess}=await import("/chess-assets/chess.js");
           if(session!==modalGeneration||chessGame!==gameState)return;
-          gameState.Chess=Chess;gameState.game=new Chess();
+          gameState.Chess=Chess;if(!gameState.game)gameState.game=new Chess();
           draw();
           const loaded=await loadChessEngine();
           if(session!==modalGeneration||chessGame!==gameState)return;
@@ -1740,9 +1757,15 @@
       }
       async function playEngineMove(){
         const token=++gameState.positionToken,fen=gameState.game.fen(),mode=modeSelect.value;
+        const startedAt=Date.now();
         gameState.thinking=true;gameState.error="";gameState.message="";draw();
+        const thinkingTimer=setInterval(()=>{
+          if(session===modalGeneration&&chessGame===gameState&&gameState.thinking){
+            status.textContent=`Leela is thinking… ${Math.floor((Date.now()-startedAt)/1000)}s`;
+          }
+        },1000);
         try{
-          const result=await gameState.engine.goZero({fen},{multipv:1,net:gameState.net,nodes:difficulties[mode]||difficulties.medium});
+          const result=await searchLeela(fen,difficulties[mode]||difficulties.medium);
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken||fen!==gameState.game.fen())return;
           if(!result.bestmove||result.bestmove==="(none)")throw new Error("Leela did not return a legal move.");
           const engineMove=resolveEngineMove(result.bestmove);
@@ -1752,15 +1775,22 @@
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken)return;
           gameState.error=error.message;gameState.message="";
         }finally{
+          clearInterval(thinkingTimer);
           if(session===modalGeneration&&chessGame===gameState&&token===gameState.positionToken){gameState.thinking=false;draw()}
         }
       }
       async function analyzePosition(){
         if(!gameState.engine||gameState.thinking||gameState.analyzing)return;
         const token=++gameState.positionToken,fen=gameState.game.fen();
+        const startedAt=Date.now();
         gameState.analyzing=true;gameState.error="";gameState.message="";draw();
+        const analysisTimer=setInterval(()=>{
+          if(session===modalGeneration&&chessGame===gameState&&gameState.analyzing){
+            status.textContent=`Analyzing with Leela… ${Math.floor((Date.now()-startedAt)/1000)}s`;
+          }
+        },1000);
         try{
-          const result=await gameState.engine.goZero({fen},{multipv:1,net:gameState.net,nodes:difficulties[modeSelect.value]||difficulties.medium});
+          const result=await searchLeela(fen,difficulties[modeSelect.value]||difficulties.medium);
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken||fen!==gameState.game.fen())return;
           const score=result.lines?.at(-1)?.[0]?.score;
           const bestMove=resolveEngineMove(result.bestmove);
@@ -1769,6 +1799,7 @@
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken)return;
           gameState.error=error.message;gameState.message="";
         }finally{
+          clearInterval(analysisTimer);
           if(session===modalGeneration&&chessGame===gameState&&token===gameState.positionToken){gameState.analyzing=false;draw()}
         }
       }
