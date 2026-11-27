@@ -131,7 +131,51 @@
     .leaderboard-config{padding:11px;border:1px solid #5b4b37;border-radius:8px;background:#28241e;color:#e3c9a7;font-size:10px;line-height:1.6;margin-top:12px}
     .leaderboard-close{border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--muted);padding:7px 10px}
     .nfl-score-save-note{margin-top:9px;color:#d4dfc6;font-size:10px;line-height:1.55}
+    .team-finder{width:min(760px,100%);margin:0 auto 25px;padding:16px;border:1px solid #35402e;border-radius:10px;background:linear-gradient(130deg,#1d241a,#171b15)}
+    .team-finder-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+    .team-finder-head strong{font:600 14px "Space Grotesk",sans-serif}
+    .team-finder-head p{margin:5px 0 0;color:var(--muted);font-size:10px;line-height:1.5}
+    .team-finder-badge{color:var(--lime);font:9px "DM Mono",monospace;white-space:nowrap}
+    .team-search,.team-roster-search{width:100%;margin-top:11px;padding:11px 12px;border:1px solid #3c4635;border-radius:7px;background:#11150f;color:var(--text);outline:0}
+    .team-search:focus,.team-roster-search:focus{border-color:var(--lime)}
+    .team-search-results,.team-roster-results{display:grid;gap:6px;margin-top:9px}
+    .team-search-option,.team-roster-player{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:10px;border:1px solid #30372d;border-radius:7px;background:#191e17;color:var(--text)}
+    .team-search-option:hover,.team-roster-player:hover{border-color:#748753;background:#22291e}
+    .team-search-option strong,.team-roster-player strong{display:block;font:600 11px "Space Grotesk",sans-serif}
+    .team-search-option small,.team-roster-player small{display:block;margin-top:4px;color:var(--muted);font-size:9px}
+    .team-search-option>span:last-child,.team-roster-player>span:last-child{color:var(--lime);font:9px "DM Mono",monospace;white-space:nowrap}
+    .team-finder-status{margin-top:9px;color:var(--muted);font-size:10px;line-height:1.5}
+    .team-roster{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+    .team-roster.show{display:block}
+    .team-roster-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .team-roster-title strong{font:600 12px "Space Grotesk",sans-serif}
+    .team-clear{border:1px solid var(--line);border-radius:6px;background:transparent;color:#bec6b6;padding:6px 8px;font-size:9px}
+    .team-roster-search{margin-top:9px}
+    .team-finder-empty{padding:11px;border:1px dashed #3b4335;border-radius:7px;color:var(--muted);font-size:10px;line-height:1.5}
+    .chess-card{border-color:#51613d;background:linear-gradient(145deg,#22271c,#171a16)}
+    .chess-card .game-card-icon{background:#344127}
+    .chess-card .game-card-copy small{color:#d9f39d}
+    .chess-card .game-launch{color:#d9f39d;border-color:#637348}
+    .chess-shell{max-width:900px;margin:auto}
+    .chess-top{display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .chess-board-wrap{display:grid;grid-template-columns:minmax(280px,560px) minmax(190px,1fr);gap:18px;margin-top:16px}
+    .chess-board{display:grid;grid-template-columns:repeat(8,1fr);aspect-ratio:1;border:5px solid #30372d;border-radius:6px;overflow:hidden}
+    .chess-square{display:grid;place-items:center;position:relative;min-width:0;aspect-ratio:1;border:0;padding:0;font:clamp(24px,6vw,51px)/1 serif}
+    .chess-square.light{background:#d9d3b9;color:#242821}.chess-square.dark{background:#667a58;color:#f5f2e7}
+    .chess-square.selected{box-shadow:inset 0 0 0 4px #f4d761}
+    .chess-square.legal:after{content:"";position:absolute;width:24%;height:24%;border-radius:50%;background:#21321d66}
+    .chess-square.capture:after{width:82%;height:82%;border:4px solid #e8ca58;background:transparent}
+    .chess-square:focus-visible{outline:3px solid #f4d761;outline-offset:-3px;z-index:1}
+    .chess-side-panel{display:flex;flex-direction:column;gap:9px}
+    .chess-status,.chess-controls,.chess-moves{padding:12px;border:1px solid var(--line);border-radius:8px;background:#20251e}
+    .chess-status{min-height:60px;color:#d6dec9;font-size:11px;line-height:1.55}
+    .chess-controls{display:flex;flex-wrap:wrap;gap:8px}
+    .chess-controls button,.chess-controls select{border:1px solid #424b3b;border-radius:6px;background:#171c16;color:#d6dec9;padding:8px 9px;font-size:10px}
+    .chess-moves{flex:1;min-height:130px;max-height:300px;overflow:auto;color:#c3cabd;font:10px/1.8 "DM Mono",monospace}
+    .chess-attribution{margin:12px 0 0;color:var(--muted);font-size:9px;line-height:1.55}
+    .chess-attribution a{color:var(--lime);text-decoration:underline}
     @media(max-width:650px){.leaderboard-best{align-items:flex-start;flex-direction:column}.leaderboard-row{grid-template-columns:32px minmax(0,1fr) auto}.scores-nav{padding:7px!important;font-size:9px!important}}
+    @media(max-width:720px){.chess-board-wrap{grid-template-columns:1fr}.chess-board{width:min(100%,520px);margin:auto}.chess-side-panel{display:grid;grid-template-columns:1fr}.chess-moves{max-height:150px}.team-finder-head{flex-direction:column}}
   </style>
 </head>
 <body>
@@ -171,6 +215,17 @@
         </div>
       </section>
       <section class="results" id="results" aria-live="polite"></section>
+      <section class="team-finder" id="team-finder" aria-label="Search a team roster">
+        <div class="team-finder-head"><div><strong>Find a player by team</strong><p>Search a club or team, select it, then search its available roster instead of browsing unrelated players.</p></div><span class="team-finder-badge">TEAM → PLAYER</span></div>
+        <input class="team-search" id="team-search" type="search" autocomplete="off" placeholder="Search a team, e.g. Corinthians…" aria-label="Search teams">
+        <div class="team-search-results" id="team-search-results" aria-live="polite"></div>
+        <div class="team-finder-status" id="team-finder-status"></div>
+        <div class="team-roster" id="team-roster">
+          <div class="team-roster-title"><strong id="team-roster-name">Team roster</strong><button class="team-clear" id="team-clear" type="button">CHANGE TEAM</button></div>
+          <input class="team-roster-search" id="team-roster-search" type="search" autocomplete="off" placeholder="Search this team's players…" aria-label="Search selected team roster">
+          <div class="team-roster-results" id="team-roster-results" aria-live="polite"></div>
+        </div>
+      </section>
       <section class="profile" id="profile" aria-live="polite"></section>
       <div class="extras"><button class="extra" id="award-open">🏆 Make a fan-made trophy announcement</button></div>
       <p class="disclaimer"><b>LIVE DATA · MULTIPLE SOURCES</b> · Soccer club and market values use <a href="https://www.transfermarkt.com/" target="_blank" rel="noopener noreferrer">Transfermarkt</a>; stats and injury reports use <a href="https://www.espn.com/" target="_blank" rel="noopener noreferrer">ESPN</a> and <a href="https://www.thesportsdb.com/" target="_blank" rel="noopener noreferrer">TheSportsDB</a> where available. Official fantasy points currently connect to Premier League FPL; other league points and availability coverage are not assumed. NBA challenge scores are actual ESPN box-score points. Missing data is not guessed.</p>
@@ -180,6 +235,7 @@
         <div class="game-grid">
           <article class="game-card"><span class="game-card-icon">⚽</span><div class="game-card-copy"><small>SOCCER · FANTASY DRAFT</small><h2>Ultimate XI</h2><p>Build a real formation from searchable soccer players, choose your league slate, and stay under the $100 budget.</p><button class="game-launch" id="draft-open">BUILD YOUR XI ↗</button></div></article>
           <article class="game-card featured"><span class="game-card-icon">🏈</span><div class="game-card-copy"><small>NFL · ALL-TIME FANTASY DRAFT</small><h2>NFL Perry Party</h2><p>Spin a random NFL team, then draft the greatest single-season fantasy lineup using standard points. Legends and retired players count too.</p><button class="game-launch" id="nfl-party-open">START PERRY PARTY ↗</button></div></article>
+          <article class="game-card chess-card"><span class="game-card-icon">♞</span><div class="game-card-copy"><small>CHESS · NEURAL-NETWORK BOT</small><h2>Play the AI</h2><p>Play against Leela Chess Zero, a neural-network engine that learned from real chess games.</p><button class="game-launch" id="chess-open">PLAY CHESS ↗</button></div></article>
           <article class="game-card"><span class="game-card-icon">🏀</span><div class="game-card-copy"><small>NBA · DAILY CHALLENGE</small><h2>82-0</h2><p>Draft five players on today's slate. Their real NBA points count toward the 90-point target.</p><button class="game-launch" id="nba-open">PICK TODAY'S FIVE ↗</button></div></article>
           <article class="game-card"><span class="game-card-icon">🏆</span><div class="game-card-copy"><small>FAN-MADE · JUST FOR FUN</small><h2>Trophy Hype</h2><p>Write a big winner announcement and celebrate your favorite player. This is fan-made, not an official result.</p><button class="game-launch" id="award-open">MAKE AN ANNOUNCEMENT ↗</button></div></article>
         </div>
