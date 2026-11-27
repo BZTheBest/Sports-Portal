@@ -619,6 +619,47 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
+  const chessAssets = {
+    "/chess-assets/chess.js": {
+      file: "node_modules/chess.js/dist/esm/chess.js",
+      type: "text/javascript; charset=utf-8"
+    },
+    "/chess-assets/zerofish.js": {
+      file: "node_modules/@lichess-org/zerofish/dist/zerofish.js",
+      type: "text/javascript; charset=utf-8"
+    },
+    "/chess-assets/zerofishEngine.js": {
+      file: "node_modules/@lichess-org/zerofish/dist/zerofishEngine.js",
+      type: "text/javascript; charset=utf-8"
+    },
+    "/chess-assets/zerofishEngine.wasm": {
+      file: "node_modules/@lichess-org/zerofish/dist/zerofishEngine.wasm",
+      type: "application/wasm"
+    },
+    "/chess-assets/tinygyal-8.pb.gz": {
+      file: "public/chess/tinygyal-8.pb.gz",
+      type: "application/gzip"
+    }
+  };
+  const chessAsset = chessAssets[requestUrl.pathname];
+  if (request.method === "GET" && chessAsset) {
+    fs.readFile(path.join(ROOT, chessAsset.file), (error, content) => {
+      if (error) {
+        response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
+        response.end("A chess engine asset could not be loaded.");
+        return;
+      }
+      response.writeHead(200, {
+        "Content-Type": chessAsset.type,
+        "Cache-Control": "public, max-age=86400",
+        "Cross-Origin-Resource-Policy": "same-origin",
+        "X-Content-Type-Options": "nosniff"
+      });
+      response.end(content);
+    });
+    return;
+  }
+
   if (requestUrl.pathname === "/api/auth/config" && request.method === "GET") {
     sendJson(response, 200, {
       googleConfigured: Boolean(GOOGLE_CLIENT_ID),
@@ -932,6 +973,8 @@ const server = http.createServer(async (request, response) => {
     response.writeHead(200, {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "no-cache",
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
       "X-Content-Type-Options": "nosniff"
     });
     response.end(content);

@@ -7,6 +7,7 @@ COPY --chown=node:node package.json package-lock.json ./
 RUN npm ci --omit=dev --no-audit --no-fund
 
 COPY --chown=node:node server.js index.html nfl-team-history.json ./
+COPY --chown=node:node public/chess/ ./public/chess/
 
 USER node
 
