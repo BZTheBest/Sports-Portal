@@ -1086,8 +1086,14 @@
 
     const backdrop=document.getElementById("backdrop"),modal=document.getElementById("modal");
     let modalGeneration=0;
-    let chessGame=null,chessEnginePromise=null,chessNetworkPromise=null;
-    function closeModal(){modalGeneration++;if(chessGame?.engine)chessGame.engine.stop();chessGame=null;backdrop.classList.remove("show","nfl-game-backdrop","chess-game-backdrop");modal.classList.remove("nfl-game-modal","chess-game-modal")}
+    let chessGame=null,chessEnginePromise=null,chessNetworkPromise=null,chessStockfishWorker=null,chessStockfishReadyPromise=null,chessStockfishPending=null,chessStockfishSearchSequence=0;
+    function stopStockfish(){
+      chessStockfishWorker?.terminate();
+      chessStockfishWorker=null;
+      chessStockfishReadyPromise=null;
+      if(chessStockfishPending){clearTimeout(chessStockfishPending.timeout);chessStockfishPending.reject(new Error("Stockfish search stopped."));chessStockfishPending=null}
+    }
+    function closeModal(){modalGeneration++;if(chessGame?.engine)chessGame.engine.stop();stopStockfish();chessGame=null;backdrop.classList.remove("show","nfl-game-backdrop","chess-game-backdrop");modal.classList.remove("nfl-game-modal","chess-game-modal")}
     backdrop.addEventListener("click",event=>{if(event.target===backdrop)closeModal()});
     let scoreConfigPromise=null,scoreUser,googleScriptPromise=null;
     const localBestKey="fulltime.perry-party.best.v1";
@@ -1615,19 +1621,21 @@
     }
     function openChess(){
       const session=++modalGeneration;
-      const gameState={session,game:null,Chess:null,engine:null,net:null,playerColor:"w",selected:null,loading:true,error:"",message:"Loading Leela Chess Zero and its neural network…",thinking:false,analyzing:false,positionToken:0};
+      const gameState={session,game:null,Chess:null,engine:null,net:null,playerColor:"w",selected:null,loading:true,error:"",errorEngine:"",errorAction:"",message:"Loading Leela Chess Zero and its neural network…",thinking:false,analyzing:false,positionToken:0};
       chessGame=gameState;
       backdrop.classList.remove("nfl-game-backdrop");
       modal.classList.remove("nfl-game-modal");
       backdrop.classList.add("chess-game-backdrop","show");
       modal.classList.add("chess-game-modal");
-      modal.innerHTML=`<div class="chess-game-shell"><header class="chess-game-header"><div class="chess-game-brand"><span class="chess-game-mark">♞</span><span><small>NEURAL-NETWORK CHESS · LEELA CHESS ZERO</small><strong>Play the AI</strong></span></div><button class="chess-game-close" aria-label="Close chess game">×</button></header><div class="chess-top"><div><div class="eyebrow">CHOOSE YOUR SIDE</div><h2 id="modal-title">Play Chess</h2></div><div class="chess-controls"><label>PLAY AS <select id="chess-side" aria-label="Choose your side"><option value="w">White</option><option value="b">Black</option></select></label><label>MODE <select id="chess-mode" aria-label="Chess game mode"><option value="easy">Easy AI</option><option value="medium" selected>Medium AI</option><option value="hard">Hard AI</option><option value="analysis">Analysis board</option></select></label></div></div><div class="chess-status chess-game-status" id="chess-status" role="status" aria-live="polite"></div><div class="chess-board-wrap"><div class="chess-board" id="chess-board" role="grid" aria-label="Chess board"></div><aside class="chess-side-panel"><div class="chess-controls"><button type="button" id="chess-new">New game</button><button type="button" id="chess-undo">Undo</button><button type="button" id="chess-analyze">Analyze position</button></div><div class="eyebrow">MOVE HISTORY</div><div class="chess-moves" id="chess-moves" aria-live="polite"></div></aside></div><p class="chess-attribution">Powered by <a href="https://github.com/lichess-org/zerofish" target="_blank" rel="noopener noreferrer">ZeroFish</a> and Leela Chess Zero’s <a href="https://github.com/dkappe/leela-chess-weights/wiki/Bad-Gyal" target="_blank" rel="noopener noreferrer">TinyGyal-8 network</a>. Easy, Medium, and Hard increase the engine’s search budget; Analysis lets you move either side freely.</p></div>`;
+      modal.innerHTML=`<div class="chess-game-shell"><header class="chess-game-header"><div class="chess-game-brand"><span class="chess-game-mark">♞</span><span><small>CHESS ENGINES · LEELA / STOCKFISH</small><strong>Play the AI</strong></span></div><button class="chess-game-close" aria-label="Close chess game">×</button></header><div class="chess-top"><div><div class="eyebrow">CHOOSE YOUR SIDE</div><h2 id="modal-title">Play Chess</h2></div><div class="chess-controls"><label>PLAY AS <select id="chess-side" aria-label="Choose your side"><option value="w">White</option><option value="b">Black</option></select></label><label>MODE <select id="chess-mode" aria-label="Chess game mode"><option value="easy">Easy · ~800 Rapid</option><option value="medium" selected>Medium · ~1200 Rapid</option><option value="hard">Hard · Stockfish 5s/move</option><option value="analysis">Analysis board</option></select></label></div></div><div class="chess-status chess-game-status" id="chess-status" role="status" aria-live="polite"></div><div class="chess-board-wrap"><div class="chess-board" id="chess-board" role="grid" aria-label="Chess board"></div><aside class="chess-side-panel"><div class="chess-controls"><button type="button" id="chess-new">New game</button><button type="button" id="chess-undo">Undo</button><button type="button" id="chess-analyze">Analyze position</button></div><div class="eyebrow">MOVE HISTORY</div><div class="chess-moves" id="chess-moves" aria-live="polite"></div></aside></div><p class="chess-attribution">Easy and Medium use Leela Chess Zero’s <a href="https://github.com/dkappe/leela-chess-weights/wiki/Bad-Gyal" target="_blank" rel="noopener noreferrer">TinyGyal-8 network</a> through <a href="https://github.com/lichess-org/zerofish" target="_blank" rel="noopener noreferrer">ZeroFish</a>. Hard uses Stockfish 19 with its full-size neural network and searches for about 5 seconds per move. Rapid ratings are approximate. Analysis lets you move either side freely.</p></div>`;
       const board=modal.querySelector("#chess-board"),status=modal.querySelector("#chess-status"),moves=modal.querySelector("#chess-moves"),modeSelect=modal.querySelector("#chess-mode"),sideSelect=modal.querySelector("#chess-side");
+      let previousMode=modeSelect.value;
       const pieces={wk:"♔",wq:"♕",wr:"♖",wb:"♗",wn:"♘",wp:"♙",bk:"♚",bq:"♛",br:"♜",bb:"♝",bn:"♞",bp:"♟"};
-      const difficulties={easy:24,medium:80,hard:200};
+      const difficulties={easy:{nodes:24},medium:{nodes:80}};
+      function engineName(mode){return mode==="hard"?"Stockfish":"Leela"}
       function gameResult(){
         if(!gameState.game)return "";
-        if(gameState.game.isCheckmate())return `Checkmate — ${gameState.game.turn()!==gameState.playerColor?"you win!":"Leela wins."}`;
+        if(gameState.game.isCheckmate())return `Checkmate — ${gameState.game.turn()!==gameState.playerColor?"you win!":`${engineName(modeSelect.value)} wins.`}`;
         if(gameState.game.isStalemate())return "Draw by stalemate.";
         if(gameState.game.isThreefoldRepetition())return "Draw by threefold repetition.";
         if(gameState.game.isInsufficientMaterial())return "Draw — insufficient material.";
@@ -1642,7 +1650,7 @@
           const castleFlag=engineTo[0]==="h"?"k":"q";
           move=legalMoves.find(candidate=>candidate.flags.includes(castleFlag));
         }
-        if(!move)throw new Error(`Leela returned an illegal move: ${uci}. Start a new game and try again.`);
+        if(!move)throw new Error(`${engineName(modeSelect.value)} returned an illegal move: ${uci}. Start a new game and try again.`);
         return move;
       }
       function searchLeela(fen,nodes){
@@ -1662,9 +1670,76 @@
         });
         return Promise.race([search,timeout]).finally(()=>clearTimeout(timeoutId));
       }
+      function initializeStockfish(){
+        if(!window.crossOriginIsolated)return Promise.reject(new Error("Stockfish needs a secure isolated page. Open this site over HTTPS and reload."));
+        if(chessStockfishReadyPromise)return chessStockfishReadyPromise;
+        chessStockfishReadyPromise=new Promise((resolve,reject)=>{
+          const worker=new Worker("/chess-assets/stockfish-worker.js",{type:"module"});
+          chessStockfishWorker=worker;
+          const initializationTimeout=setTimeout(()=>reject(new Error("Stockfish took too long to start. The full-strength network is large; check your connection and retry.")),60000);
+          worker.onmessage=event=>{
+            const data=event.data;
+            if(data.type==="ready"){clearTimeout(initializationTimeout);resolve();return}
+            if(data.type==="error"){
+              const error=new Error(data.message||"Stockfish failed to start.");
+              clearTimeout(initializationTimeout);
+              if(chessStockfishPending&&data.id===chessStockfishPending.id){
+                const pending=chessStockfishPending;chessStockfishPending=null;clearTimeout(pending.timeout);
+                pending.reject(error);stopStockfish();chessStockfishReadyPromise=null;
+              }else reject(error);
+              return;
+            }
+            if(data.type!=="line"||!chessStockfishPending||data.id!==chessStockfishPending.id)return;
+            const mate=data.line.match(/\bscore mate (-?\d+)/);
+            const centipawns=data.line.match(/\bscore cp (-?\d+)/);
+            if(mate)chessStockfishPending.score=Number(mate[1])>0?10000:-10000;
+            else if(centipawns)chessStockfishPending.score=Number(centipawns[1]);
+            if(data.line.startsWith("bestmove ")){
+              const pending=chessStockfishPending;chessStockfishPending=null;clearTimeout(pending.timeout);
+              pending.resolve({bestmove:data.line.split(/\s+/)[1],score:pending.score});
+            }
+          };
+          worker.onerror=event=>{
+            clearTimeout(initializationTimeout);
+            const error=new Error(event.message||"Stockfish worker failed.");
+            if(chessStockfishPending){const pending=chessStockfishPending;chessStockfishPending=null;clearTimeout(pending.timeout);pending.reject(error)}
+            reject(error);
+          };
+          worker.postMessage({type:"init"});
+        }).catch(error=>{
+          stopStockfish();
+          chessStockfishReadyPromise=null;
+          throw error;
+        });
+        return chessStockfishReadyPromise;
+      }
+      async function searchStockfish(fen){
+        await initializeStockfish();
+        if(!chessStockfishWorker)throw new Error("Stockfish worker is not running.");
+        if(chessStockfishPending)throw new Error("Stockfish is already searching.");
+        const id=++chessStockfishSearchSequence;
+        return new Promise((resolve,reject)=>{
+          const timeout=setTimeout(()=>{
+            if(!chessStockfishPending||chessStockfishPending.id!==id)return;
+            chessStockfishPending=null;stopStockfish();chessStockfishReadyPromise=null;
+            reject(new Error("Stockfish search timed out. Retry the engine."));
+          },30000);
+          chessStockfishPending={id,resolve,reject,timeout,score:undefined};
+          chessStockfishWorker.postMessage({type:"search",id,fen,movetime:5000});
+        });
+      }
+      function searchChessEngine(fen,mode){
+        return mode==="hard"?searchStockfish(fen):searchLeela(fen,(difficulties[mode]||difficulties.medium).nodes);
+      }
       function retryChess(){
+        const retryAction=gameState.errorAction;
         gameState.error="";
-        if(!gameState.engine){
+        gameState.errorAction="";
+        if(modeSelect.value==="hard"){
+          if(retryAction==="analysis")analyzePosition();
+          else if(gameState.game?.turn()!==gameState.playerColor&&!gameResult())playEngineMove();
+          else{gameState.message="Stockfish is ready.";draw()}
+        }else if(!gameState.engine){
           gameState.loading=true;gameState.message="Retrying Leela engine…";draw();initializeEngine();
         }else if(modeSelect.value==="analysis"){
           analyzePosition();
@@ -1691,7 +1766,7 @@
         const movesPlayed=gameState.game.history();
         board.setAttribute("aria-label",`Chess board viewed from ${gameState.playerColor==="w"?"White":"Black"}'s side`);
         const playerSide=gameState.playerColor==="w"?"White":"Black",engineSide=gameState.playerColor==="w"?"Black":"White";
-        modal.querySelector(".chess-top .eyebrow").textContent=analysis?"ANALYSIS BOARD · MOVE EITHER SIDE":`YOU ARE ${playerSide.toUpperCase()} · LEELA PLAYS ${engineSide.toUpperCase()}`;
+        modal.querySelector(".chess-top .eyebrow").textContent=analysis?"ANALYSIS BOARD · MOVE EITHER SIDE":`YOU ARE ${playerSide.toUpperCase()} · ${engineName(modeSelect.value).toUpperCase()} PLAYS ${engineSide.toUpperCase()}`;
         const moveText=[];
         for(let index=0;index<movesPlayed.length;index+=2)moveText.push(`${Math.floor(index/2)+1}. ${movesPlayed[index]}${movesPlayed[index+1]?` ${movesPlayed[index+1]}`:""}`);
         const legalDestinations=gameState.selected?gameState.game.moves({square:gameState.selected,verbose:true}):[];
@@ -1705,23 +1780,27 @@
             if(square===gameState.selected)classes.push("selected");
             if(destination)classes.push(destination.captured?"legal capture":"legal");
             const label=`${square}${piece?`, ${piece.color==="w"?"white":"black"} ${piece.type}`:""}`;
-            const disabled=gameState.thinking||gameState.analyzing||(!analysis&&(gameState.loading||!gameState.engine||gameState.game.turn()!==gameState.playerColor||Boolean(result)));
+            const needsLeela=modeSelect.value!=="hard";
+            const disabled=gameState.thinking||gameState.analyzing||(!analysis&&(needsLeela&&(gameState.loading||!gameState.engine)||gameState.game.turn()!==gameState.playerColor||Boolean(result)));
             squares.push(`<button type="button" role="gridcell" class="chess-square ${classes.join(" ")}" data-square="${square}" aria-label="${label}" ${disabled?"disabled":""}>${piece?`<span class="chess-piece-${piece.color==="w"?"white":"black"}">${pieces[piece.color+piece.type]}</span>`:""}</button>`);
           }
         }
         board.innerHTML=squares.join("");
         const turn=gameState.game.turn()==="w"?"White":"Black";
-        const prompt=gameState.error?`Leela could not start: ${escapeHtml(gameState.error)}`:gameState.loading?gameState.message:gameState.thinking?"Leela is thinking…":gameState.analyzing?"Analyzing this position…":result||`${gameState.message||`${turn===gameState.playerColor?"Your":"Leela's"} move (${turn})${gameState.game.isCheck()?" — check":""}.`}${analysis?" Analysis mode: move either color.":""}`;
-        status.innerHTML=`${prompt}${gameState.error?'<br><button type="button" class="formation" id="chess-retry">RETRY ENGINE</button>':""}`;
+        const activeEngine=modeSelect.value==="hard"?"stockfish":"leela";
+        const activeError=gameState.errorEngine===activeEngine?gameState.error:"";
+        const modeLoading=gameState.loading&&modeSelect.value!=="hard";
+        const prompt=activeError?`${engineName(modeSelect.value)} could not start: ${escapeHtml(activeError)}`:modeLoading?gameState.message:gameState.thinking?`${engineName(modeSelect.value)} is thinking…`:gameState.analyzing?"Analyzing this position…":result||`${gameState.message||`${turn===gameState.playerColor?"Your":`${engineName(modeSelect.value)}'s`} move (${turn})${gameState.game.isCheck()?" — check":""}.`}${analysis?" Analysis mode: move either color.":""}`;
+        status.innerHTML=`${prompt}${activeError?'<br><button type="button" class="formation" id="chess-retry">RETRY ENGINE</button>':""}`;
         moves.textContent=moveText.join("\n")||"No moves yet.";
         moves.scrollTop=moves.scrollHeight;
         modal.querySelector("#chess-undo").disabled=!movesPlayed.length||gameState.thinking||gameState.analyzing;
-        modal.querySelector("#chess-analyze").disabled=gameState.loading||!gameState.engine||gameState.thinking||gameState.analyzing;
+        modal.querySelector("#chess-analyze").disabled=(modeSelect.value!=="hard"&&(gameState.loading||!gameState.engine))||gameState.thinking||gameState.analyzing;
         modeSelect.disabled=gameState.thinking||gameState.analyzing;
         sideSelect.disabled=gameState.thinking||gameState.analyzing||(movesPlayed.length>0&&modeSelect.value!=="analysis");
         const retry=modal.querySelector("#chess-retry");
         if(retry)retry.addEventListener("click",retryChess);
-        modal.querySelector("#chess-new").disabled=!gameState.engine||gameState.thinking||gameState.analyzing;
+        modal.querySelector("#chess-new").disabled=(modeSelect.value!=="hard"&&!gameState.engine)||gameState.thinking||gameState.analyzing;
         board.querySelectorAll("[data-square]").forEach(button=>button.addEventListener("click",()=>playSquare(button.dataset.square)));
       }
       function playSquare(square){
@@ -1747,12 +1826,12 @@
           draw();
           const loaded=await loadChessEngine();
           if(session!==modalGeneration||chessGame!==gameState)return;
-          gameState.engine=loaded.engine;gameState.net=loaded.net;gameState.loading=false;gameState.error="";gameState.message=`Leela is ready. You are ${gameState.playerColor==="w"?"White":"Black"}.`;
+          gameState.engine=loaded.engine;gameState.net=loaded.net;gameState.loading=false;gameState.error="";gameState.errorEngine="";gameState.message=`Leela is ready. You are ${gameState.playerColor==="w"?"White":"Black"}.`;
           draw();
-          if(modeSelect.value!=="analysis"&&gameState.engine&&gameState.game.turn()!==gameState.playerColor&&!gameResult())playEngineMove();
+          if(!gameState.thinking&&modeSelect.value!=="analysis"&&gameState.engine&&gameState.game.turn()!==gameState.playerColor&&!gameResult())playEngineMove();
         }catch(error){
           if(session!==modalGeneration||chessGame!==gameState)return;
-          gameState.loading=false;gameState.error=error.message;draw();
+          gameState.loading=false;gameState.error=error.message;gameState.errorEngine="leela";draw();
         }
       }
       async function playEngineMove(){
@@ -1761,43 +1840,46 @@
         gameState.thinking=true;gameState.error="";gameState.message="";draw();
         const thinkingTimer=setInterval(()=>{
           if(session===modalGeneration&&chessGame===gameState&&gameState.thinking){
-            status.textContent=`Leela is thinking… ${Math.floor((Date.now()-startedAt)/1000)}s`;
+            status.textContent=`${engineName(mode)} is thinking… ${Math.floor((Date.now()-startedAt)/1000)}s`;
           }
         },1000);
         try{
-          const result=await searchLeela(fen,difficulties[mode]||difficulties.medium);
+          const result=await searchChessEngine(fen,mode);
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken||fen!==gameState.game.fen())return;
-          if(!result.bestmove||result.bestmove==="(none)")throw new Error("Leela did not return a legal move.");
+          if(!result.bestmove||result.bestmove==="(none)")throw new Error(`${engineName(mode)} did not return a legal move.`);
           const engineMove=resolveEngineMove(result.bestmove);
           const move=gameState.game.move({from:engineMove.from,to:engineMove.to,promotion:engineMove.promotion||"q"});
-          gameState.message=`Leela played ${move.san}${gameState.game.isCheck()?" — check":""}.`;
+          gameState.message=`${engineName(mode)} played ${move.san}${gameState.game.isCheck()?" — check":""}.`;
         }catch(error){
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken)return;
-          gameState.error=error.message;gameState.message="";
+          gameState.error=error.message;gameState.errorEngine=mode==="hard"?"stockfish":"leela";gameState.errorAction="play";gameState.message="";
         }finally{
           clearInterval(thinkingTimer);
           if(session===modalGeneration&&chessGame===gameState&&token===gameState.positionToken){gameState.thinking=false;draw()}
         }
       }
       async function analyzePosition(){
-        if(!gameState.engine||gameState.thinking||gameState.analyzing)return;
+        if((modeSelect.value!=="hard"&&!gameState.engine)||gameState.thinking||gameState.analyzing)return;
         const token=++gameState.positionToken,fen=gameState.game.fen();
         const startedAt=Date.now();
         gameState.analyzing=true;gameState.error="";gameState.message="";draw();
         const analysisTimer=setInterval(()=>{
           if(session===modalGeneration&&chessGame===gameState&&gameState.analyzing){
-            status.textContent=`Analyzing with Leela… ${Math.floor((Date.now()-startedAt)/1000)}s`;
+            status.textContent=`Analyzing with ${engineName(modeSelect.value==="analysis"?"medium":modeSelect.value)}… ${Math.floor((Date.now()-startedAt)/1000)}s`;
           }
         },1000);
         try{
-          const result=await searchLeela(fen,difficulties[modeSelect.value]||difficulties.medium);
+          const analysisMode=modeSelect.value==="analysis"?"medium":modeSelect.value;
+          const engine=engineName(analysisMode);
+          const result=await searchChessEngine(fen,analysisMode);
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken||fen!==gameState.game.fen())return;
-          const score=result.lines?.at(-1)?.[0]?.score;
+          const score=analysisMode==="hard"?result.score:result.lines?.at(-1)?.[0]?.score;
           const bestMove=resolveEngineMove(result.bestmove);
-          gameState.message=Number.isFinite(score)?`Leela evaluation: ${score>=10000?"forced win":score<=-10000?"forced loss":`${score>=0?"+":""}${(score/100).toFixed(2)} pawns`} · best move ${bestMove.san}.`:`Leela recommends ${bestMove.san}.`;
+          gameState.error="";gameState.errorEngine="";gameState.errorAction="";
+          gameState.message=Number.isFinite(score)?`${engine} evaluation for side to move: ${score>=10000?"forced win":score<=-10000?"forced loss":`${score>=0?"+":""}${(score/100).toFixed(2)} pawns`} · best move ${bestMove.san}.`:`${engine} recommends ${bestMove.san}.`;
         }catch(error){
           if(session!==modalGeneration||chessGame!==gameState||token!==gameState.positionToken)return;
-          gameState.error=error.message;gameState.message="";
+          gameState.error=error.message;gameState.errorEngine=modeSelect.value==="hard"?"stockfish":"leela";gameState.errorAction="analysis";gameState.message="";
         }finally{
           clearInterval(analysisTimer);
           if(session===modalGeneration&&chessGame===gameState&&token===gameState.positionToken){gameState.analyzing=false;draw()}
@@ -1808,32 +1890,34 @@
         gameState.playerColor=sideSelect.value;
         if(gameState.Chess&&modeSelect.value!=="analysis"){
           gameState.positionToken++;gameState.game=new gameState.Chess();gameState.selected=null;
-          if(gameState.engine)gameState.error="";
+          gameState.error="";gameState.errorEngine="";gameState.errorAction="";
           gameState.message=`New game. You are ${gameState.playerColor==="w"?"White":"Black"}.`;
         }
         draw();
-        if(gameState.Chess&&gameState.engine&&modeSelect.value!=="analysis"&&gameState.game.turn()!==gameState.playerColor)playEngineMove();
+        if(gameState.Chess&&(gameState.engine||modeSelect.value==="hard")&&modeSelect.value!=="analysis"&&gameState.game.turn()!==gameState.playerColor)playEngineMove();
       });
       modal.querySelector("#chess-new").addEventListener("click",()=>{
         if(gameState.engine)gameState.engine.stop();
         if(!gameState.Chess)return;
-        gameState.positionToken++;gameState.thinking=false;gameState.analyzing=false;gameState.game=new gameState.Chess();gameState.selected=null;gameState.error="";gameState.message=`New game. You are ${gameState.playerColor==="w"?"White":"Black"}.`;
+        gameState.positionToken++;gameState.thinking=false;gameState.analyzing=false;gameState.game=new gameState.Chess();gameState.selected=null;gameState.error="";gameState.errorEngine="";gameState.errorAction="";gameState.message=`New game. You are ${gameState.playerColor==="w"?"White":"Black"}.`;
         draw();
-        if(modeSelect.value!=="analysis"&&gameState.engine&&gameState.game.turn()!==gameState.playerColor)playEngineMove();
+        if(modeSelect.value!=="analysis"&&(gameState.engine||modeSelect.value==="hard")&&gameState.game.turn()!==gameState.playerColor)playEngineMove();
       });
       modal.querySelector("#chess-undo").addEventListener("click",()=>{
         if(gameState.thinking||gameState.analyzing)return;
         const history=gameState.game.history();
         gameState.game.undo();
         if(modeSelect.value!=="analysis"&&history.length>1)gameState.game.undo();
-        gameState.positionToken++;gameState.selected=null;gameState.error="";gameState.message="Move undone.";
+        gameState.positionToken++;gameState.selected=null;gameState.error="";gameState.errorEngine="";gameState.errorAction="";gameState.message="Move undone.";
         draw();
       });
       modal.querySelector("#chess-analyze").addEventListener("click",analyzePosition);
       modeSelect.addEventListener("change",()=>{
+        if(previousMode==="hard"&&modeSelect.value!=="hard"&&gameState.errorEngine==="stockfish"){gameState.error="";gameState.errorEngine="";gameState.errorAction=""}
+        previousMode=modeSelect.value;
         gameState.positionToken++;gameState.selected=null;gameState.message=modeSelect.value==="analysis"?"Analysis board — move either color, then analyze any position.":`Game mode selected. You are ${gameState.playerColor==="w"?"White":"Black"}.`;
         draw();
-        if(modeSelect.value!=="analysis"&&gameState.engine&&gameState.game.turn()!==gameState.playerColor&&!gameResult())playEngineMove();
+        if(modeSelect.value!=="analysis"&&(gameState.engine||modeSelect.value==="hard")&&gameState.game.turn()!==gameState.playerColor&&!gameResult())playEngineMove();
       });
       draw();
       initializeEngine();

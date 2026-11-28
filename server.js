@@ -636,27 +636,49 @@ const server = http.createServer(async (request, response) => {
       file: "node_modules/@lichess-org/zerofish/dist/zerofishEngine.wasm",
       type: "application/wasm"
     },
+    "/chess-assets/stockfish.js": {
+      file: "node_modules/@lichess-org/stockfish-web/sf_19.js",
+      type: "text/javascript; charset=utf-8"
+    },
+    "/chess-assets/stockfish.wasm": {
+      file: "node_modules/@lichess-org/stockfish-web/sf_19.wasm",
+      type: "application/wasm"
+    },
+    "/chess-assets/stockfish-worker.js": {
+      file: "public/chess/stockfish-worker.js",
+      type: "text/javascript; charset=utf-8"
+    },
     "/chess-assets/tinygyal-8.pb.gz": {
       file: "public/chess/tinygyal-8.pb.gz",
       type: "application/gzip"
+    },
+    "/chess-assets/nn-1a298aa575a0.nnue": {
+      file: "public/chess/nn-1a298aa575a0.nnue",
+      type: "application/octet-stream"
     }
   };
   const chessAsset = chessAssets[requestUrl.pathname];
   if (request.method === "GET" && chessAsset) {
-    fs.readFile(path.join(ROOT, chessAsset.file), (error, content) => {
-      if (error) {
-        response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
-        response.end("A chess engine asset could not be loaded.");
-        return;
-      }
+    const assetStream = fs.createReadStream(path.join(ROOT, chessAsset.file));
+    assetStream.once("open", () => {
       response.writeHead(200, {
         "Content-Type": chessAsset.type,
         "Cache-Control": "public, max-age=86400",
         "Cross-Origin-Resource-Policy": "same-origin",
         "X-Content-Type-Options": "nosniff"
       });
-      response.end(content);
+      assetStream.pipe(response);
     });
+    assetStream.once("error", (error) => {
+      console.error("Could not load chess engine asset:", error);
+      if (response.headersSent) {
+        response.destroy(error);
+        return;
+      }
+      response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
+      response.end("A chess engine asset could not be loaded.");
+    });
+    response.once("close", () => assetStream.destroy());
     return;
   }
 

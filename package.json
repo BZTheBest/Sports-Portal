@@ -9,6 +9,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@lichess-org/stockfish-web": "0.6.1",
     "@lichess-org/zerofish": "0.0.40",
     "chess.js": "1.4.0",
     "google-auth-library": "^9.15.1",
