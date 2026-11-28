@@ -10,20 +10,20 @@ async function initialize() {
   try {
     const [module, networkResponse] = await Promise.all([
       import("/chess-assets/stockfish.js"),
-      fetch("/chess-assets/nn-1a298aa575a0.nnue")
+      fetch("/chess-assets/nn-61e7af4bb97d.nnue")
     ]);
     if (!networkResponse.ok) {
       throw new Error(`Stockfish network returned HTTP ${networkResponse.status}`);
     }
     const network = new Uint8Array(await networkResponse.arrayBuffer());
     engine = await module.default({
-      locateFile: file => new URL(file === "sf_19.wasm" ? "/chess-assets/stockfish.wasm" : file, self.location.origin).href,
+      locateFile: file => new URL(file === "sf_19_smallnet.wasm" ? "/chess-assets/stockfish.wasm" : file, self.location.origin).href,
       mainScriptUrlOrBlob: "/chess-assets/stockfish.js",
       listen: line => {
         if (line === "uciok") {
           setTimeout(() => {
             engine.uci("setoption name Threads value 1");
-            engine.uci("setoption name Hash value 64");
+            engine.uci("setoption name Hash value 128");
             engine.uci("isready");
           });
         } else if (line === "readyok" && activeSearchId === undefined) {

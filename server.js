@@ -637,11 +637,11 @@ const server = http.createServer(async (request, response) => {
       type: "application/wasm"
     },
     "/chess-assets/stockfish.js": {
-      file: "node_modules/@lichess-org/stockfish-web/sf_19.js",
+      file: "node_modules/@lichess-org/stockfish-web/sf_19_smallnet.js",
       type: "text/javascript; charset=utf-8"
     },
     "/chess-assets/stockfish.wasm": {
-      file: "node_modules/@lichess-org/stockfish-web/sf_19.wasm",
+      file: "node_modules/@lichess-org/stockfish-web/sf_19_smallnet.wasm",
       type: "application/wasm"
     },
     "/chess-assets/stockfish-worker.js": {
@@ -652,8 +652,8 @@ const server = http.createServer(async (request, response) => {
       file: "public/chess/tinygyal-8.pb.gz",
       type: "application/gzip"
     },
-    "/chess-assets/nn-1a298aa575a0.nnue": {
-      file: "public/chess/nn-1a298aa575a0.nnue",
+    "/chess-assets/nn-61e7af4bb97d.nnue": {
+      file: "public/chess/nn-61e7af4bb97d.nnue",
       type: "application/octet-stream"
     }
   };
